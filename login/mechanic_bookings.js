@@ -1,6 +1,51 @@
 document.addEventListener('DOMContentLoaded', function() {
     let allBookings = [];
     let currentBookingId = null;
+    let pusher = null;
+    let pusherChannel = null;
+
+    async function initPusher() {
+        try {
+            // Get config
+            const configRes = await fetch('http://127.0.0.1:5000/api/config', { credentials: 'include' });
+            const configData = await configRes.json();
+            
+            // Get profile
+            const profileRes = await fetch('http://127.0.0.1:5000/profile', { credentials: 'include' });
+            const profileData = await profileRes.json();
+            
+            if (configData.pusher_key && profileData.logged_in) {
+                const user = profileData.user;
+                pusher = new Pusher(configData.pusher_key, {
+                    cluster: configData.pusher_cluster || 'ap2'
+                });
+                
+                const channelName = `mechanic-${user.id}`;
+                console.log(`Subscribing to Pusher channel: ${channelName}`);
+                pusherChannel = pusher.subscribe(channelName);
+                
+                pusherChannel.bind('booking_update', function(data) {
+                    console.log('Received booking update:', data);
+                    // Reload bookings and statistics when a booking is created, accepted, countered, completed
+                    loadBookings();
+                    
+                    if (data.status) {
+                        const statusText = data.status.toUpperCase();
+                        let message = `Booking #${data.id} status updated to ${statusText}!`;
+                        if (data.status === 'requested') {
+                            message = `New booking request received (Booking #${data.id})!`;
+                        } else if (data.status === 'completed') {
+                            message = `Booking #${data.id} has been marked as COMPLETED by the user!`;
+                        }
+                        alert(message);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Failed to initialize Pusher in mechanic_bookings.js', e);
+        }
+    }
+
 
     async function loadBookings() {
         try {
@@ -188,7 +233,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial load
     loadBookings();
-
-    // Auto-refresh every 10 seconds
-    setInterval(loadBookings, 10000);
+    initPusher();
 });

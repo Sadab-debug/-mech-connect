@@ -12,6 +12,9 @@ class ChatSystem {
     }
 
     async init() {
+        this.pusher = null;
+        this.pusherChannel = null;
+        await this.loadConfig();
         await this.loadCurrentUser();
         this.setupEventListeners();
         this.loadConversations();
@@ -31,6 +34,22 @@ class ChatSystem {
         }
     }
 
+    async loadConfig() {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/config', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (data.pusher_key) {
+                this.pusher = new Pusher(data.pusher_key, {
+                    cluster: data.pusher_cluster || 'ap2'
+                });
+            }
+        } catch (error) {
+            console.error('Error loading config:', error);
+        }
+    }
+
     async loadCurrentUser() {
         try {
             const response = await fetch('http://127.0.0.1:5000/profile', {
@@ -41,6 +60,7 @@ class ChatSystem {
             if (data.logged_in) {
                 this.currentUser = data.user;
                 this.updateCurrentUserUI();
+                this.subscribeToPusher();
             } else {
                 // Redirect to login if not authenticated
                 window.location.href = 'http://127.0.0.1:5000/login/login.html';
@@ -48,6 +68,57 @@ class ChatSystem {
         } catch (error) {
             console.error('Error loading current user:', error);
             window.location.href = 'http://127.0.0.1:5000/login/login.html';
+        }
+    }
+
+    subscribeToPusher() {
+        if (!this.pusher) {
+            console.warn('Pusher is not initialized');
+            return;
+        }
+        const userPrefixedId = this.getCurrentUserPrefixedId();
+        console.log(`Subscribing to Pusher channel: chat-${userPrefixedId}`);
+        this.pusherChannel = this.pusher.subscribe(`chat-${userPrefixedId}`);
+        this.pusherChannel.bind('new_message', (data) => {
+            console.log('Received real-time message:', data);
+            this.handleIncomingMessage(data);
+        });
+    }
+
+    async handleIncomingMessage(msg) {
+        // 1. Reload conversations to update sidebar (last message, last time, unread count)
+        await this.loadConversations();
+        
+        // 2. If the message belongs to the active conversation, append it
+        const currentUserId = this.getCurrentUserPrefixedId();
+        const partnerId = msg.sender_id === currentUserId ? msg.receiver_id : msg.sender_id;
+        
+        if (this.currentConversation === partnerId) {
+            if (!this.messages.has(this.currentConversation)) {
+                this.messages.set(this.currentConversation, []);
+            }
+            
+            const msgs = this.messages.get(this.currentConversation);
+            // Check if message is already in list (e.g. if we sent it and added it temporarily)
+            const exists = msgs.some(m => m.id === msg.id || (m.content === msg.content && m.sender_id === msg.sender_id && Math.abs(new Date(m.created_at) - new Date(msg.created_at)) < 5000));
+            
+            if (!exists) {
+                // Remove temporary placeholder message
+                const tempIndex = msgs.findIndex(m => m.sender_id === currentUserId && m.content === msg.content && typeof m.id === 'number' && m.id > 1700000000000);
+                if (tempIndex > -1) {
+                    msgs.splice(tempIndex, 1);
+                }
+                
+                msgs.push(msg);
+                this.renderMessages();
+            } else {
+                // If it exists, update it (e.g. update temp ID to real ID)
+                const tempIndex = msgs.findIndex(m => m.sender_id === currentUserId && m.content === msg.content && typeof m.id === 'number' && m.id > 1700000000000);
+                if (tempIndex > -1) {
+                    msgs[tempIndex] = msg;
+                    this.renderMessages();
+                }
+            }
         }
     }
 

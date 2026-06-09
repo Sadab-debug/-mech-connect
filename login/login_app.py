@@ -7,6 +7,7 @@ from datetime import datetime
 from sqlalchemy import or_, and_
 import os
 import time
+import pusher
 
 # Import models first to get their db instance
 from models import db, User, Admin, Mechanic, MechanicProposal, MechanicNotification, Booking, Message
@@ -16,20 +17,56 @@ app = Flask(__name__, static_folder=None)
 # Database configuration
 basedir = os.path.abspath(os.path.dirname(__file__))
 parent_dir = os.path.dirname(basedir)
-def get_current_db():
-    try:
-        with open(os.path.join(basedir, 'current_db.txt')) as f:
-            return f.read().strip()
-    except:
-        return 'mechconnect.db'
-db_name = get_current_db()
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, db_name)}'
+
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # SQLAlchemy requires 'postgresql://' instead of 'postgres://' (common in Vercel Postgres URLs)
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    def get_current_db():
+        try:
+            with open(os.path.join(basedir, 'current_db.txt')) as f:
+                return f.read().strip()
+        except:
+            return 'mechconnect.db'
+    db_name = get_current_db()
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, db_name)}'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'your_secret_key_change_this'  # Change to a secure random key!
+app.secret_key = os.environ.get('SESSION_SECRET_KEY', 'your_secret_key_change_this')
+
 
 # Initialize database with the app
 db.init_app(app)
 CORS(app, supports_credentials=True)
+
+# Initialize Pusher
+pusher_app_id = os.environ.get('PUSHER_APP_ID')
+pusher_key = os.environ.get('PUSHER_KEY')
+pusher_secret = os.environ.get('PUSHER_SECRET')
+pusher_cluster = os.environ.get('PUSHER_CLUSTER', 'ap2')
+
+pusher_client = None
+if pusher_app_id and pusher_key and pusher_secret:
+    try:
+        pusher_client = pusher.Pusher(
+            app_id=pusher_app_id,
+            key=pusher_key,
+            secret=pusher_secret,
+            cluster=pusher_cluster,
+            ssl=True
+        )
+    except Exception as e:
+        print(f"[PUSHER] Failed to initialize: {e}")
+
+def trigger_pusher_event(channel, event, data):
+    if pusher_client:
+        try:
+            pusher_client.trigger(channel, event, data)
+        except Exception as e:
+            print(f"[PUSHER ERROR] Failed to trigger event {event} on channel {channel}: {e}")
 
 with app.app_context():
     db.create_all()
@@ -359,6 +396,14 @@ def get_profile():
         return jsonify({'logged_in': True, 'user': user})
     else:
         return jsonify({'logged_in': False}), 401
+
+@app.route('/api/config', methods=['GET'])
+def get_config():
+    """Get public configurations like Pusher credentials"""
+    return jsonify({
+        'pusher_key': os.environ.get('PUSHER_KEY', ''),
+        'pusher_cluster': os.environ.get('PUSHER_CLUSTER', 'ap2')
+    })
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -753,6 +798,21 @@ def bookings():
             )
             db.session.add(booking)
             db.session.commit()
+            
+            # Trigger Pusher event to mechanic
+            pusher_payload = {
+                'id': booking.id,
+                'user_id': booking.user_id,
+                'mechanic_id': booking.mechanic_id,
+                'status': booking.status,
+                'problem_description': booking.problem_description,
+                'offer': booking.offer,
+                'preferred_time': booking.preferred_time.isoformat(),
+                'address': booking.address,
+                'created_at': booking.created_at.isoformat() if booking.created_at else datetime.utcnow().isoformat()
+            }
+            trigger_pusher_event(f"mechanic-{booking.mechanic_id}", 'booking_update', pusher_payload)
+            
             return jsonify({'success': True, 'booking_id': booking.id})
         except Exception as e:
             db.session.rollback()
@@ -837,6 +897,16 @@ def mechanic_accept_booking(booking_id):
 
         booking.status = 'confirmed'
         db.session.commit()
+        
+        # Trigger Pusher event to user and mechanic
+        pusher_payload = {
+            'id': booking.id,
+            'status': booking.status,
+            'mechanic_name': booking.mechanic.full_name
+        }
+        trigger_pusher_event(f"user-{booking.user_id}", 'booking_update', pusher_payload)
+        trigger_pusher_event(f"mechanic-{booking.mechanic_id}", 'booking_update', pusher_payload)
+        
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
@@ -860,6 +930,18 @@ def mechanic_counter_booking(booking_id):
         booking.counter_offer = data.get('counter_offer')
         booking.counter_note = data.get('note')
         db.session.commit()
+        
+        # Trigger Pusher event to user and mechanic
+        pusher_payload = {
+            'id': booking.id,
+            'status': booking.status,
+            'counter_offer': booking.counter_offer,
+            'counter_note': booking.counter_note,
+            'mechanic_name': booking.mechanic.full_name
+        }
+        trigger_pusher_event(f"user-{booking.user_id}", 'booking_update', pusher_payload)
+        trigger_pusher_event(f"mechanic-{booking.mechanic_id}", 'booking_update', pusher_payload)
+        
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
@@ -881,6 +963,16 @@ def mechanic_reject_booking(booking_id):
 
         booking.status = 'rejected'
         db.session.commit()
+        
+        # Trigger Pusher event to user and mechanic
+        pusher_payload = {
+            'id': booking.id,
+            'status': booking.status,
+            'mechanic_name': booking.mechanic.full_name
+        }
+        trigger_pusher_event(f"user-{booking.user_id}", 'booking_update', pusher_payload)
+        trigger_pusher_event(f"mechanic-{booking.mechanic_id}", 'booking_update', pusher_payload)
+        
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
@@ -911,6 +1003,15 @@ def complete_booking(booking_id):
         if mechanic.total_bookings:
             mechanic.average_income = mechanic.total_income / mechanic.total_bookings
         db.session.commit()
+        
+        # Trigger Pusher event to mechanic and user
+        pusher_payload = {
+            'id': booking.id,
+            'status': booking.status
+        }
+        trigger_pusher_event(f"mechanic-{booking.mechanic_id}", 'booking_update', pusher_payload)
+        trigger_pusher_event(f"user-{booking.user_id}", 'booking_update', pusher_payload)
+        
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
@@ -1415,6 +1516,19 @@ def chat_send_message():
         db.session.add(message)
         db.session.commit()
         
+        # Trigger Pusher event
+        pusher_payload = {
+            'id': message.id,
+            'sender_id': message.sender_id,
+            'receiver_id': message.receiver_id,
+            'content': message.content,
+            'image_url': message.image_url,
+            'created_at': message.created_at.isoformat() if message.created_at else datetime.utcnow().isoformat(),
+            'is_read': message.is_read
+        }
+        trigger_pusher_event(f"chat-{receiver_id}", 'new_message', pusher_payload)
+        trigger_pusher_event(f"chat-{sender_id}", 'new_message', pusher_payload)
+        
         return jsonify({
             'success': True,
             'message': 'Message sent successfully',
@@ -1611,16 +1725,16 @@ def chat_page():
     if not user_data:
         return redirect('/login/login.html')
     
-    return send_from_directory(os.path.join(basedir, '..', 'chat'), 'chat_new.html')
+    return send_from_directory(os.path.join(basedir, '..', 'chat'), 'chat.html')
 
 @app.route('/chat/<path:filename>')
 def serve_chat(filename):
     if filename == 'chat.html':
         return redirect('/chat/')
     elif filename == 'chat.css':
-        return send_from_directory(os.path.join(basedir, '..', 'chat'), 'chat_new.css')
+        return send_from_directory(os.path.join(basedir, '..', 'chat'), 'chat.css')
     elif filename == 'chat.js':
-        return send_from_directory(os.path.join(basedir, '..', 'chat'), 'chat_new.js')
+        return send_from_directory(os.path.join(basedir, '..', 'chat'), 'chat.js')
     else:
         return send_from_directory(os.path.join(basedir, '..', 'chat'), filename)
 

@@ -1,6 +1,54 @@
 document.addEventListener('DOMContentLoaded', function() {
     let allBookings = [];
     let currentMechanic = null;
+    let pusher = null;
+    let pusherChannel = null;
+
+    async function initPusher() {
+        try {
+            // Get config
+            const configRes = await fetch('http://127.0.0.1:5000/api/config', { credentials: 'include' });
+            const configData = await configRes.json();
+            
+            // Get profile
+            const profileRes = await fetch('http://127.0.0.1:5000/profile', { credentials: 'include' });
+            const profileData = await profileRes.json();
+            
+            if (configData.pusher_key && profileData.logged_in) {
+                const user = profileData.user;
+                pusher = new Pusher(configData.pusher_key, {
+                    cluster: configData.pusher_cluster || 'ap2'
+                });
+                
+                const channelName = `user-${user.id}`;
+                console.log(`Subscribing to Pusher channel: ${channelName}`);
+                pusherChannel = pusher.subscribe(channelName);
+                
+                pusherChannel.bind('booking_update', function(data) {
+                    console.log('Received booking update:', data);
+                    // Reload bookings when an update is received
+                    loadBookings();
+                    
+                    // Show alert
+                    if (data.status) {
+                        const statusText = data.status.toUpperCase();
+                        let message = `Booking #${data.id} has been ${statusText}!`;
+                        if (data.status === 'confirmed') {
+                            message = `Booking #${data.id} has been confirmed by ${data.mechanic_name || 'the mechanic'}!`;
+                        } else if (data.status === 'counter') {
+                            message = `Mechanic ${data.mechanic_name || ''} proposed a counter offer of ${data.counter_offer} BDT for booking #${data.id}.`;
+                        } else if (data.status === 'rejected') {
+                            message = `Booking #${data.id} was rejected by ${data.mechanic_name || 'the mechanic'}.`;
+                        }
+                        alert(message);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Failed to initialize Pusher in booking.js', e);
+        }
+    }
+
 
     // Load user bookings
     async function loadBookings() {
@@ -213,4 +261,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial load
     loadBookings();
+    initPusher();
 });
