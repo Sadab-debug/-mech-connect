@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mechanic Registration - Mech Connect</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, #7e57c2 0%, #20c997 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .form-wrapper {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(126, 87, 194, 0.15);
+            border: 2px solid #e0e7ef;
+            padding: 40px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid #e0e7ef;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #1e1e2e;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 700;
+            color: #1e1e2e;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="password"],
+        textarea,
+        select {
+            padding: 12px 16px;
+            border: 2px solid #e0e7ef;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Poppins', Arial, sans-serif;
+            outline: none;
+            transition: all 0.3s;
+            background: #f8fafc;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #7e57c2;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(126, 87, 194, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #c8a2c8;
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8fafc;
+        }
+
+        .file-upload:hover {
+            border-color: #7e57c2;
+            background: #f3eaff;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-text {
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .file-upload-icon {
+            font-size: 2.4rem;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-text p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .file-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        button {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, #7e57c2 0%, #20c997 100%);
+            color: #fff;
+            min-width: 200px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(126, 87, 194, 0.3);
+        }
+
+        .btn-back {
+            background: #e0e7ef;
+            color: #1e1e2e;
+            min-width: 150px;
+        }
+
+        .btn-back:hover {
+            background: #c8a2c8;
+            color: #fff;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .success {
+            color: #20c997;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #7e57c2;
+        }
+
+        .back-button {
+            margin-bottom: 24px;
+        }
+
+        .back-button a {
+            color: #7e57c2;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-button a:hover {
+            gap: 12px;
+            color: #20c997;
+        }
+
+        @media (max-width: 768px) {
+            .form-wrapper {
+                padding: 24px;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="back-button">
+            <a href="/">← Back to Home</a>
+        </div>
+
+        <div class="header">
+            <h1>🔧 Mechanic Registration</h1>
+            <p>Join our network and start getting bookings</p>
+        </div>
+
+        <div class="form-wrapper">
+            <form id="mechanicProposalForm">
+                <!-- Personal Information -->
+                <div class="section">
+                    <div class="section-title">👤 Personal Information</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" name="fullName" required>
+                            <span class="error" id="fullNameError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" name="email" required>
+                            <span class="error" id="emailError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Password *</label>
+                            <input type="password" name="password" required>
+                            <span class="error" id="passwordError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" name="age" min="18" max="80">
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile Number *</label>
+                            <input type="tel" name="mobile" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" name="dob">
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Address *</label>
+                            <input type="text" name="address" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Profile Photo</label>
+                            <div class="file-upload" id="profilePhotoUpload">
+                                <div class="file-upload-text">
+                                    <div class="file-upload-icon">📸</div>
+                                    <p>Click to upload profile photo</p>
+                                </div>
+                                <input type="file" name="profilePhoto" accept="image/*">
+                            </div>
+                            <div class="file-preview" id="profilePhotoPreview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Information -->
+                <div class="section">
+                    <div class="section-title">💼 Professional Information</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Workshop/Business Name</label>
+                            <input type="text" name="workshopName">
+                        </div>
+                        <div class="form-group">
+                            <label>Work Experience (Years) *</label>
+                            <input type="number" name="experience" min="0" max="60" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Hourly Rate (₹) *</label>
+                            <input type="number" name="hourlyRate" min="0" step="50" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Working Hours</label>
+                            <input type="text" name="workingHours" placeholder="e.g., 9 AM - 6 PM">
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Skills/Expertise *</label>
+                            <textarea name="skills" placeholder="List your skills (e.g., Engine repair, Electrical work, Transmission, etc.)" required></textarea>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Education/Qualifications</label>
+                            <textarea name="education" placeholder="e.g., Diploma in Mechanical Engineering, Certificate in Auto Repair, etc."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Certifications & Documents -->
+                <div class="section">
+                    <div class="section-title">📄 Certifications & Documents</div>
+                    <div class="form-grid">
+                        <div class="form-group form-full">
+                            <label>Skill Certificates / Work Samples</label>
+                            <div class="file-upload" id="skillCertUpload">
+                                <div class="file-upload-text">
+                                    <div class="file-upload-icon">🏆</div>
+                                    <p>Click to upload skill certificates (multiple files)</p>
+                                </div>
+                                <input type="file" name="skillCerts" accept="image/*" multiple>
+                            </div>
+                            <div class="file-preview" id="skillCertPreview"></div>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label>Education Certificate</label>
+                            <div class="file-upload" id="eduCertUpload">
+                                <div class="file-upload-text">
+                                    <div class="file-upload-icon">🎓</div>
+                                    <p>Click to upload education certificate</p>
+                                </div>
+                                <input type="file" name="eduCert" accept="image/*">
+                            </div>
+                            <div class="file-preview" id="eduCertPreview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>NID Card Number *</label>
+                            <input type="text" name="nidNumber" required>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>NID Card Photo *</label>
+                            <div class="file-upload" id="nidPhotoUpload">
+                                <div class="file-upload-text">
+                                    <div class="file-upload-icon">🪪</div>
+                                    <p>Click to upload NID photo</p>
+                                </div>
+                                <input type="file" name="nidPhoto" accept="image/*" required>
+                            </div>
+                            <div class="file-preview" id="nidPhotoPreview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Birth Certificate Number *</label>
+                            <input type="text" name="birthCertNumber" required>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Birth Certificate Photo *</label>
+                            <div class="file-upload" id="birthCertUpload">
+                                <div class="file-upload-text">
+                                    <div class="file-upload-icon">👶</div>
+                                    <p>Click to upload birth certificate</p>
+                                </div>
+                                <input type="file" name="birthCertPhoto" accept="image/*" required>
+                            </div>
+                            <div class="file-preview" id="birthCertPreview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work History -->
+                <div class="section">
+                    <div class="section-title">📋 Work History & Additional Info</div>
+                    <div class="form-grid">
+                        <div class="form-group form-full">
+                            <label>Completed Works / Portfolio</label>
+                            <textarea name="workHistory" placeholder="Describe your completed works, projects, or notable achievements"></textarea>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Work Photos (Before & After)</label>
+                            <div class="file-upload" id="workPhotoUpload">
+                                <div class="file-upload-text">
+                                    <div class="file-upload-icon">📷</div>
+                                    <p>Click to upload work photos (multiple files)</p>
+                                </div>
+                                <input type="file" name="workPhotos" accept="image/*" multiple>
+                            </div>
+                            <div class="file-preview" id="workPhotoPreview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agreement -->
+                <div class="section">
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" name="agreement" required style="width: auto;">
+                            <span>I agree to Mech Connect terms & conditions and understand that admin approval is required before I can start working.</span>
+                        </label>
+                        <span class="error" id="agreementError"></span>
+                    </div>
+                </div>
+
+                <!-- Buttons & Status -->
+                <div id="spinner" class="spinner">
+                    ⏳ Processing your proposal...
+                </div>
+                <span class="error" id="formError"></span>
+                <span class="success" id="formSuccess"></span>
+
+                <div class="button-group">
+                    <button type="button" class="btn-back" onclick="history.back()">← Back</button>
+                    <button type="submit" class="btn-submit">🚀 Submit Proposal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="mechanic_registration.js"></script>
+</body>
+</html>

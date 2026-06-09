@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="page_title_chat">MechConnect - Messages</title>
+    <link rel="stylesheet" href="chat.css">
+    <link rel="stylesheet" href="../i18n.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-info">
+                    <img id="currentUserAvatar" src="https://ui-avatars.com/api/?name=User&background=20c997&color=fff" alt="You">
+                    <div class="user-details">
+                        <div id="currentUserName">Your Name</div>
+                        <div class="user-status" data-i18n-key="chat_status">Online</div>
+                    </div>
+                </div>
+                <span class="lang-selector">
+                    <select id="languageSelect" aria-label="Select language">
+                        <option value="en">English</option>
+                        <option value="bn">বাংলা</option>
+                    </select>
+                </span>
+                <button class="new-chat-btn" id="newChatBtn" data-i18n-key="chat_new_button">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
+            </div>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" data-i18n-placeholder-key="chat_search_placeholder" placeholder="Search conversations...">
+                </div>
+            </div>
+
+            <div class="conversations-list" id="conversationsList">
+                <!-- Conversations will be loaded here -->
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <p data-i18n-key="chat_no_conversations">No conversations yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main" id="chatMain">
+            <div class="chat-welcome" id="chatWelcome">
+                <div class="welcome-content">
+                    <i class="fas fa-comments"></i>
+                    <h2 data-i18n-key="chat_welcome_title">Welcome to MechConnect Messages</h2>
+                    <p data-i18n-key="chat_welcome_subtitle">Select a conversation to start messaging</p>
+                </div>
+            </div>
+
+            <div class="chat-active" id="chatActive" style="display: none;">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <img id="chatAvatar" src="" alt="">
+                        <div class="chat-header-details">
+                            <div id="chatName">Contact Name</div>
+                            <div id="chatStatus">Online</div>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="header-btn" id="videoCallBtn" data-i18n-title-key="chat_video_title" title="Video call">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button class="header-btn" id="voiceCallBtn" data-i18n-title-key="chat_voice_title" title="Voice call">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                        <button class="header-btn" id="moreOptionsBtn" data-i18n-title-key="chat_more_title" title="More options">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Messages will be loaded here -->
+                </div>
+
+                <!-- Message Input -->
+                <div class="message-input-container">
+                    <div class="input-actions">
+                        <button class="action-btn" id="attachBtn" data-i18n-title-key="chat_attach_title" title="Attach file">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <button class="action-btn" id="emojiBtn" data-i18n-title-key="chat_emoji_title" title="Emoji">
+                            <i class="fas fa-smile"></i>
+                        </button>
+                    </div>
+                    <div class="message-input-wrapper">
+                        <textarea 
+                            id="messageInput" 
+                            data-i18n-placeholder-key="chat_input_placeholder" 
+                            placeholder="Type a message..." 
+                            rows="1"
+                            maxlength="2000"
+                        ></textarea>
+                        <button class="send-btn" id="sendBtn" title="Send message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Chat Modal -->
+    <div class="modal-overlay" id="newChatModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n-key="chat_modal_title">Start New Conversation</h3>
+                <button class="close-btn" id="closeNewChatModal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="newChatSearch" data-i18n-placeholder-key="chat_modal_search_placeholder" placeholder="Search users and mechanics...">
+                </div>
+                <div class="users-list" id="usersList">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emoji Picker (Simple) -->
+    <div class="emoji-picker" id="emojiPicker" style="display: none;">
+        <div class="emoji-grid">
+            <span class="emoji">😀</span><span class="emoji">😃</span><span class="emoji">😄</span><span class="emoji">😁</span>
+            <span class="emoji">😅</span><span class="emoji">😂</span><span class="emoji">🤣</span><span class="emoji">😊</span>
+            <span class="emoji">😇</span><span class="emoji">🙂</span><span class="emoji">😉</span><span class="emoji">😌</span>
+            <span class="emoji">😍</span><span class="emoji">🥰</span><span class="emoji">😘</span><span class="emoji">😗</span>
+            <span class="emoji">😙</span><span class="emoji">😚</span><span class="emoji">😋</span><span class="emoji">😛</span>
+            <span class="emoji">😜</span><span class="emoji">🤪</span><span class="emoji">😝</span><span class="emoji">🤑</span>
+            <span class="emoji">🤗</span><span class="emoji">🤭</span><span class="emoji">🤫</span><span class="emoji">🤔</span>
+            <span class="emoji">🤐</span><span class="emoji">🤨</span><span class="emoji">😐</span><span class="emoji">😑</span>
+            <span class="emoji">😶</span><span class="emoji">😏</span><span class="emoji">😒</span><span class="emoji">🙄</span>
+            <span class="emoji">😬</span><span class="emoji">🤥</span><span class="emoji">😌</span><span class="emoji">😔</span>
+            <span class="emoji">😪</span><span class="emoji">🤤</span><span class="emoji">😴</span><span class="emoji">😷</span>
+            <span class="emoji">🤒</span><span class="emoji">🤕</span><span class="emoji">🤢</span><span class="emoji">🤮</span>
+            <span class="emoji">🤧</span><span class="emoji">🥵</span><span class="emoji">🥶</span><span class="emoji">🥴</span>
+            <span class="emoji">😵</span><span class="emoji">🤯</span><span class="emoji">🤠</span><span class="emoji">🥳</span>
+            <span class="emoji">😎</span><span class="emoji">🤓</span><span class="emoji">🧐</span><span class="emoji">😕</span>
+            <span class="emoji">😟</span><span class="emoji">🙁</span><span class="emoji">☹️</span><span class="emoji">😮</span>
+            <span class="emoji">😯</span><span class="emoji">😲</span><span class="emoji">😳</span><span class="emoji">🥺</span>
+            <span class="emoji">😦</span><span class="emoji">😧</span><span class="emoji">😨</span><span class="emoji">😰</span>
+            <span class="emoji">😱</span><span class="emoji">🤫</span><span class="emoji">🤭</span><span class="emoji">🤔</span>
+            <span class="emoji">❤️</span><span class="emoji">🧡</span><span class="emoji">💛</span><span class="emoji">💚</span>
+            <span class="emoji">💙</span><span class="emoji">💜</span><span class="emoji">🖤</span><span class="emoji">💯</span>
+            <span class="emoji">👍</span><span class="emoji">👎</span><span class="emoji">👌</span><span class="emoji">✌️</span>
+            <span class="emoji">🤞</span><span class="emoji">🤟</span><span class="emoji">🤘</span><span class="emoji">🤙</span>
+            <span class="emoji">👈</span><span class="emoji">👉</span><span class="emoji">👆</span><span class="emoji">👇</span>
+            <span class="emoji">☝️</span><span class="emoji">✋</span><span class="emoji">🤚</span><span class="emoji">🖐️</span>
+            <span class="emoji">👋</span><span class="emoji">🤝</span><span class="emoji">🙏</span><span class="emoji">💪</span>
+        </div>
+    </div>
+
+    <!-- File Input (Hidden) -->
+    <input type="file" id="fileInput" accept="image/*,video/*,.pdf,.doc,.docx" style="display: none;">
+
+    <script src="../i18n.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Mech Connect</title>
+    <link rel="stylesheet" href="admin_dashboard.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h2>🔐 Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-tab="dashboard">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="users">
+                <span class="icon">👥</span>
+                <span>Users</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="mechanics">
+                <span class="icon">🔧</span>
+                <span>Mechanics</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="pending">
+                <span class="icon">⏳</span>
+                <span>Pending Applicants</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="bookings">
+                <span class="icon">📅</span>
+                <span>Bookings</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="reports">
+                <span class="icon">📈</span>
+                <span>Reports</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="search-box">
+                <input type="text" placeholder="🔍 Search...">
+            </div>
+            <div class="top-bar-right">
+                <button class="notification-btn">🔔</button>
+                <div class="admin-profile">
+                    <img id="adminProfilePic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                    <div class="profile-info">
+                        <span id="adminName">Admin User</span>
+                        <small>Administrator</small>
+                    </div>
+                </div>
+                <button id="logoutAdminBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <h1>Dashboard</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-details">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Total Users</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔧</div>
+                        <div class="stat-details">
+                            <h3 id="totalMechanics">0</h3>
+                            <p>Total Mechanics</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-details">
+                            <h3 id="totalBookings">0</h3>
+                            <p>Total Bookings</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-details">
+                            <h3 id="avgRating">4.8</h3>
+                            <p>Avg Rating</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Recent Activity</h3>
+                        <p style="text-align: center; color: #888; padding: 40px;">📊 Chart will display here</p>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Revenue</h3>
+                        <p style="text-align: center; color: #888; padding: 40px;">💰 Chart will display here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-content">
+                <h1>Manage Users</h1>
+                <div class="table-container">
+                    <table id="usersTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Full Name</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #888;">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Mechanics Tab -->
+            <div id="mechanics-tab" class="tab-content">
+                <h1>Manage Mechanics</h1>
+                <div class="table-container">
+                    <table id="mechanicsTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Workshop</th>
+                                <th>Experience</th>
+                                <th>Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mechanicsTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: #888;">Loading mechanics...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pending Applicants Tab -->
+            <div id="pending-tab" class="tab-content">
+                <div style="text-align: center; padding: 40px;">
+                    <p style="color: #888; margin-bottom: 20px;">📋 Pending mechanic applications management</p>
+                    <a href="/pending_mechanics.html" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">View All Pending Applicants →</a>
+                </div>
+            </div>
+
+            <!-- Bookings Tab -->
+            <div id="bookings-tab" class="tab-content">
+                <h1>Manage Bookings</h1>
+                <div class="table-container">
+                    <p style="text-align: center; color: #888; padding: 40px;">📅 Booking management coming soon...</p>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports-tab" class="tab-content">
+                <h1>Reports</h1>
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h3>User Report</h3>
+                        <p>View detailed user statistics and activity</p>
+                        <button class="report-btn">Generate</button>
+                    </div>
+                    <div class="report-card">
+                        <h3>Revenue Report</h3>
+                        <p>View revenue and financial data</p>
+                        <button class="report-btn">Generate</button>
+                    </div>
+                    <div class="report-card">
+                        <h3>Mechanic Performance</h3>
+                        <p>View mechanic ratings and performance</p>
+                        <button class="report-btn">Generate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin_dashboard.js"></script>
+</body>
+</html>

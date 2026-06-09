@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title data-i18n-key="page_title_about">Mech Connect - About Us</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="../i18n.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="navbar">
+        <div><strong>Mech connect</strong></div>
+        <div>
+            <a href="../main.html" data-i18n-key="nav_home">Home</a>
+            <a href="../booking/booking.html" data-i18n-key="nav_booking">Booking</a>
+            <a href="../chat/chat.html" data-i18n-key="nav_messages">Messages</a>
+            <a href="../index/index.html" data-i18n-key="nav_about">About Us</a>
+            <a href="../login/login.html" data-i18n-key="nav_login">Login/Signup</a>
+            <span class="lang-selector">
+                <select id="languageSelect" aria-label="Select language">
+                    <option value="en">English</option>
+                    <option value="bn">বাংলা</option>
+                </select>
+            </span>
+        </div>
+    </div>
+
+    <button class="dark-mode-toggle" id="darkModeToggle">🌙 Dark Mode</button>
+
+    <header class="hero-section">
+        <div class="hero-content">
+            <h1 data-i18n-key="about_heading">About Mech Connect</h1>
+            <p data-i18n-key="about_intro">Revolutionizing the automotive service industry by connecting vehicle owners with verified, skilled mechanics through our innovative platform.</p>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=600&q=80" alt="Team Working">
+        </div>
+    </header>
+
+    <div class="section">
+        <h2 data-i18n-key="mission_title">Our Mission</h2>
+        <div class="mission-content">
+            <p data-i18n-key="mission_text1">At Mech Connect, we believe that finding a reliable mechanic shouldn't be a hassle. Our mission is to bridge the gap between vehicle owners and skilled mechanics through technology, transparency, and trust.</p>
+            <p data-i18n-key="mission_text2">We're committed to providing a seamless booking experience, real-time tracking, secure payments, and quality assurance for every service booked through our platform.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 data-i18n-key="story_title">Our Story</h2>
+        <div class="story-content">
+            <p data-i18n-key="story_text1">Founded in 2024, Mech Connect was born from a simple frustration: finding a trustworthy mechanic shouldn't require endless phone calls and uncertainty. Our team of automotive enthusiasts and tech experts came together to create a solution that puts the power back in the hands of vehicle owners.</p>
+            <p data-i18n-key="story_text2">Today, we serve thousands of customers across the region, connecting them with verified mechanics who have been thoroughly vetted for expertise, reliability, and customer service.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 data-i18n-key="values_title">Our Values</h2>
+        <div class="card-container">
+            <div class="card">
+                <div class="value-icon">🔒</div>
+                <h3 data-i18n-key="value_trust">Trust & Security</h3>
+                <p data-i18n-key="value_trust_text">Every mechanic is verified, and all transactions are secure with encrypted payments.</p>
+            </div>
+            <div class="card">
+                <div class="value-icon">⚡</div>
+                <h3 data-i18n-key="value_efficiency">Efficiency</h3>
+                <p data-i18n-key="value_efficiency_text">Book instantly with real-time availability and get your vehicle serviced quickly.</p>
+            </div>
+            <div class="card">
+                <div class="value-icon">💎</div>
+                <h3 data-i18n-key="value_quality">Quality</h3>
+                <p data-i18n-key="value_quality_text">We only work with mechanics who meet our strict quality standards.</p>
+            </div>
+            <div class="card">
+                <div class="value-icon">🤝</div>
+                <h3 data-i18n-key="value_community">Community</h3>
+                <p data-i18n-key="value_community_text">Building a community of trusted mechanics and satisfied customers.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="section">
+        <h2 data-i18n-key="team_title">Our Team</h2>
+        <div class="team-container">
+            <div class="team-member">
+                <img src="https://ui-avatars.com/api/?name=Jarif+Hassan&background=667eea&color=fff&size=150" alt="Founder">
+                <h3>Jarif Hassan</h3>
+                <p>Founder & CEO</p>
+                <p class="team-bio">Automotive enthusiast with a passion for revolutionizing the industry through technology.</p>
+            </div>
+            <div class="team-member">
+                <img src="https://ui-avatars.com/api/?name=Sarah+Ahmed&background=20c997&color=fff&size=150" alt="CTO">
+                <h3>Sarah Ahmed</h3>
+                <p>Chief Technology Officer</p>
+                <p class="team-bio">Tech expert ensuring our platform delivers seamless user experiences.</p>
+            </div>
+            <div class="team-member">
+                <img src="https://ui-avatars.com/api/?name=Mike+Johnson&background=764ba2&color=fff&size=150" alt="Operations">
+                <h3>Mike Johnson</h3>
+                <p>Head of Operations</p>
+                <p class="team-bio">Ensuring quality service delivery and mechanic verification processes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Carousel -->
+    <div class="section testimonials">
+        <h2 data-i18n-key="testimonials_title">What Our Users Say</h2>
+        <div class="testimonial-carousel">
+            <div class="testimonial active">
+                <p>"Mech Connect made it so easy to find a reliable mechanic for my AC repair. The live tracking is awesome!"</p>
+                <span>- Ayesha K.</span>
+            </div>
+            <div class="testimonial">
+                <p>"Booking and payment was seamless. The mechanic arrived on time and fixed my car quickly."</p>
+                <span>- Rahul S.</span>
+            </div>
+            <div class="testimonial">
+                <p>"I love the futuristic interface and the support team is always available. Highly recommended!"</p>
+                <span>- Priya M.</span>
+            </div>
+        </div>
+        <div class="testimonial-controls">
+            <button id="prevTestimonial">&#8592;</button>
+            <button id="nextTestimonial">&#8594;</button>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="section contact-section">
+        <h2 data-i18n-key="contact_title">Contact Us</h2>
+        <div class="contact-info">
+            <div class="contact-item">
+                <div class="contact-icon">📧</div>
+                <div>
+                    <h3 data-i18n-key="contact_email">Email</h3>
+                    <p>support@mechconnect.com</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon">📱</div>
+                <div>
+                    <h3 data-i18n-key="contact_phone">Phone</h3>
+                    <p>+1 (555) 123-4567</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon">📍</div>
+                <div>
+                    <h3 data-i18n-key="contact_address">Address</h3>
+                    <p>123 Auto Street, Mechanic City, MC 12345</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p data-i18n-key="footer_text">&copy; 2024 Mech Connect. All rights reserved.</p>
+    </footer>
+    <script>
+    // filepath: d:\big projects\online_mechanics\index\index.html
+    // Highlight the active navbar link
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('.navbar a');
+        const current = window.location.pathname.replace(/\\/g, '/').toLowerCase();
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href').replace(/\\/g, '/').toLowerCase();
+            if (current.endsWith(href.replace('../', ''))) {
+                link.classList.add('active');
+            }
+        });
+
+        // Testimonials carousel
+        const testimonials = document.querySelectorAll('.testimonial');
+        let idx = 0;
+        function showTestimonial(i) {
+            testimonials.forEach((el, j) => el.classList.toggle('active', i === j));
+        }
+        document.getElementById('prevTestimonial').onclick = function() {
+            idx = (idx - 1 + testimonials.length) % testimonials.length;
+            showTestimonial(idx);
+        };
+        document.getElementById('nextTestimonial').onclick = function() {
+            idx = (idx + 1) % testimonials.length;
+            showTestimonial(idx);
+        };
+    });
+    </script>
+    <script src="index.js"></script>
+    <script src="../i18n.js"></script>
+</body>
+</html>

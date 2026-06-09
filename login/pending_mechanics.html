@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Mechanics - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin: 0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #20c997;
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: #20c997;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-back:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-message {
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .applicants-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .applicant-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .applicant-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .applicant-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .applicant-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .applicant-details {
+            flex: 1;
+        }
+
+        .applicant-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .applicant-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .applicant-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .applicant-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #764ba2;
+        }
+
+        .btn-approve {
+            background: #20c997;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #13a096;
+        }
+
+        .btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c0392b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            width: 95%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #333;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            margin-bottom: 30px;
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #667eea;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .modal-footer .btn {
+            flex: 1;
+            padding: 12px;
+        }
+
+        .rejection-form {
+            margin-top: 15px;
+        }
+
+        .rejection-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .rejection-form textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submitted-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 20px;
+            }
+
+            .applicant-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .applicant-actions {
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .action-btn {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 20px 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">⚙️</div>
+                <div class="sidebar-subtitle">Admin Dashboard</div>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="/admin_dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/admin_dashboard.html">👥 Users</a></li>
+                <li><a href="/admin_dashboard.html">🔧 All Mechanics</a></li>
+                <li><a href="/pending_mechanics.html" class="active">⏳ Pending Applicants</a></li>
+                <li><a href="/admin_dashboard.html">📅 Bookings</a></li>
+                <li><a href="/login/login.html">🚪 Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">⏳ Pending Mechanic Applications</h1>
+                <div class="header-actions">
+                    <button class="btn btn-back" onclick="history.back()">← Back</button>
+                </div>
+            </div>
+
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p>Loading pending applications...</p>
+            </div>
+
+            <div id="applicantsContainer" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Mechanic Details</h2>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+
+            <div class="modal-body" id="modalBody"></div>
+
+            <div class="modal-footer">
+                <button class="btn action-btn btn-approve" onclick="approveModal()">✓ Approve</button>
+                <button class="btn action-btn btn-reject" onclick="showRejectionForm()">✕ Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMechanicId = null;
+        let applicants = [];
+
+        function showApplicants() {
+            const container = document.getElementById('applicantsContainer');
+
+            if (applicants.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <h2 class="empty-title">No Pending Applications</h2>
+                        <p class="empty-message">All mechanic applications have been reviewed!</p>
+                    </div>
+                `;
+            } else {
+                let html = '<div class="applicants-grid">';
+
+                applicants.forEach(app => {
+                    html += `
+                        <div class="applicant-card">
+                            <div class="applicant-info">
+                                <div class="applicant-avatar">
+                                    ${app.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="applicant-details">
+                                    <div class="applicant-name">${app.name}</div>
+                                    <div class="applicant-meta">
+                                        <span class="applicant-meta-item">📧 ${app.email}</span>
+                                        <span class="applicant-meta-item">📱 ${app.mobile}</span>
+                                        <span class="applicant-meta-item">📅 ${new Date(app.submitted_at).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="applicant-actions">
+                                <button class="action-btn btn-view" onclick="viewDetails(${app.mechanic_id})">👁️ View</button>
+                                <button class="action-btn btn-approve" onclick="approveMechanic(${app.mechanic_id})">✓ Approve</button>
+                                <button class="action-btn btn-reject" onclick="rejectMechanic(${app.mechanic_id})">✕ Reject</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                container.innerHTML = html;
+            }
+
+            container.style.display = 'block';
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        async function loadApplicants() {
+            try {
+                const response = await fetch('/admin/pending-mechanics', {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    if (response.status === 401) {
+                        window.location.href = '/login/login.html';
+                        return;
+                    }
+                    throw new Error(data.message);
+                }
+
+                applicants = data.pending || [];
+                showApplicants();
+            } catch (error) {
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="empty-icon">❌</div>
+                    <h2 class="empty-title">Error Loading Data</h2>
+                    <p class="empty-message">${error.message}</p>
+                `;
+            }
+        }
+
+        async function viewDetails(mechanicId) {
+            currentMechanicId = mechanicId;
+
+            try {
+                const response = await fetch(`/admin/mechanic/${mechanicId}`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (!data.success) throw new Error(data.message);
+
+                const m = data.mechanic;
+                const submitted = applicants.find(a => a.mechanic_id === mechanicId);
+
+                document.getElementById('modalTitle').textContent = `${m.full_name}`;
+
+                const modalBody = document.getElementById('modalBody');
+                modalBody.innerHTML = `
+                    <div class="info-section">
+                        <div class="section-title">📌 Personal Information</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Full Name</div>
+                                <div class="info-value">${m.full_name}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">${m.email}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Age</div>
+                                <div class="info-value">${m.age || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Mobile</div>
+                                <div class="info-value">${m.mobile}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Address</div>
+                                <div class="info-value" style="grid-column: 1/-1;">${m.address}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <div class="section-title">🔧 Professional Information</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Workshop Name</div>
+                                <div class="info-value">${m.workshop_name}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Experience</div>
+                                <div class="info-value">${m.experience_years} years</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Hourly Rate</div>
+                                <div class="info-value">$${m.hourly_rate}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Working Hours</div>
+                                <div class="info-value">${m.working_hours}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Education</div>
+                                <div class="info-value">${m.education}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Skills</div>
+                                <div class="info-value" style="grid-column: 1/-1;">${m.expertise || 'Not specified'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <div class="section-title">📄 Document Information</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">NID Number</div>
+                                <div class="info-value">${m.nid_number}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Birth Certificate #</div>
+                                <div class="info-value">${m.birth_certificate_number}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <div class="section-title">📅 Submission Details</div>
+                        <div class="info-item">
+                            <div class="info-label">Submitted On</div>
+                            <div class="info-value">${new Date(submitted.submitted_at).toLocaleString()}</div>
+                        </div>
+                    </div>
+
+                    ${m.work_history ? `
+                    <div class="info-section">
+                        <div class="section-title">💼 Work History</div>
+                        <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-word;">
+                            ${m.work_history}
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+
+                document.getElementById('detailModal').classList.add('show');
+            } catch (error) {
+                alert('Error loading details: ' + error.message);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        function showRejectionForm() {
+            const modalBody = document.getElementById('modalBody');
+            const form = document.querySelector('.rejection-form');
+
+            if (form) return;
+
+            const div = document.createElement('div');
+            div.className = 'rejection-form';
+            div.innerHTML = `
+                <label style="display: block; margin-bottom: 10px; font-weight: 600;">Rejection Reason</label>
+                <textarea id="rejectionNotes" placeholder="Explain why this application is being rejected..."></textarea>
+            `;
+
+            modalBody.appendChild(div);
+        }
+
+        async function approveMechanic(mechanicId = null) {
+            const id = mechanicId || currentMechanicId;
+            if (!id) return;
+
+            if (!confirm('Are you sure you want to approve this mechanic?')) return;
+
+            try {
+                const response = await fetch(`/admin/mechanic/${id}/approve`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Mechanic approved successfully!');
+                    closeModal();
+                    applicants = applicants.filter(a => a.mechanic_id !== id);
+                    showApplicants();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function rejectMechanic(mechanicId = null) {
+            const id = mechanicId || currentMechanicId;
+            if (!id) return;
+
+            if (!confirm('Are you sure you want to reject this application?')) return;
+
+            const notes = document.getElementById('rejectionNotes')?.value || '';
+
+            try {
+                const response = await fetch(`/admin/mechanic/${id}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ notes }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Mechanic rejected successfully!');
+                    closeModal();
+                    applicants = applicants.filter(a => a.mechanic_id !== id);
+                    showApplicants();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function approveModal() {
+            approveMechanic();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailModal') closeModal();
+        });
+
+        // Load applicants on page load
+        document.addEventListener('DOMContentLoaded', loadApplicants);
+    </script>
+</body>
+</html>

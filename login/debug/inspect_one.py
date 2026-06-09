@@ -1,0 +1,12 @@
+import sqlite3
+conn = sqlite3.connect('mechconnect_1769168048.db')
+cur = conn.cursor()
+cur.execute('SELECT name FROM sqlite_master WHERE type="table";')
+print('Tables:', [r[0] for r in cur.fetchall()])
+cur.execute('SELECT COUNT(*) FROM mechanics')
+print('Mechanics:', cur.fetchone()[0])
+cur.execute('SELECT COUNT(*) FROM users')
+print('Users:', cur.fetchone()[0])
+cur.execute('SELECT COUNT(*) FROM admins')
+print('Admins:', cur.fetchone()[0])
+conn.close()
