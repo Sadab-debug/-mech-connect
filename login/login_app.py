@@ -57,18 +57,16 @@ db.init_app(app)
 app.permanent_session_lifetime = timedelta(days=int(os.environ.get('SESSION_LIFETIME_DAYS', '7')))
 
 # Configure CORS origins: set FRONTEND_ORIGINS env var to a comma-separated list
+# For debugging: if FRONTEND_ORIGINS not set, allow all origins (less secure but helps debug cookie issues)
 frontend_origins = os.environ.get('FRONTEND_ORIGINS')
 if frontend_origins:
     origins = [o.strip() for o in frontend_origins.split(',') if o.strip()]
-else:
-    origins = []
-
-# If origins list is empty, default to allowing same-origin only (None means all in flask-cors),
-# but when deploying you should set FRONTEND_ORIGINS to your Vercel app URL(s).
-if origins:
+    print(f"[CORS] Using restricted origins: {origins}")
     CORS(app, supports_credentials=True, origins=origins)
 else:
-    CORS(app, supports_credentials=True)
+    print("[CORS] WARNING: FRONTEND_ORIGINS not set. Allowing all origins for debugging.")
+    print("[CORS] For production, set FRONTEND_ORIGINS env var to your frontend URL.")
+    CORS(app, supports_credentials=True, origins=['*'])  # Allow all origins (debug mode)
 
 # Initialize Pusher
 pusher_app_id = os.environ.get('PUSHER_APP_ID')
