@@ -4,225 +4,209 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n-key="page_title_login">Login / Signup - Mech Connect</title>
-    <link rel="stylesheet" href="login.css">
-    <link rel="stylesheet" href="../i18n.css">
+    <link rel="stylesheet" href="/login/login.css">
+    <link rel="stylesheet" href="/i18n.css">
 </head>
 <body>
-    <div class="auth-modal" style="position:relative; margin: 40px auto;">
-        <a href="../main.html" class="auth-modal-close" style="position:absolute;top:18px;right:28px;text-decoration:none;font-size:2.2rem;color:#888;">&times;</a>
-        <button id="homeButton" onclick="window.location.href='../main.html'" data-i18n-key="login_back_home" style="position:absolute;top:18px;left:28px;padding:10px 20px;border-radius:18px;border:none;background:linear-gradient(90deg,#7e57c2 0%,#20c997 100%);color:#fff;font-weight:700;cursor:pointer;font-size:1rem;transition:all 0.3s ease;">← Back to Home</button>
-        <span class="lang-selector" style="position:absolute;top:18px;left:210px;">
-            <select id="languageSelect" aria-label="Select language">
-                <option value="en">English</option>
-                <option value="bn">বাংলা</option>
-            </select>
-        </span>
-        <!-- Role Selector Slide Card -->
-        <div id="roleSelector" style="display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:18px;">
-            <button class="role-btn active" data-role="user" data-i18n-key="login_role_user" style="padding:12px 32px;border-radius:18px;border:none;font-size:1.1rem;font-weight:700;cursor:pointer;background:linear-gradient(90deg,#7e57c2 0%,#20c997 100%);color:#fff;box-shadow:0 2px 8px #c8a2c822;transition:background 0.18s,transform 0.18s;">User</button>
-            <button class="role-btn" data-role="admin" data-i18n-key="login_role_admin" style="padding:12px 32px;border-radius:18px;border:none;font-size:1.1rem;font-weight:700;cursor:pointer;background:#23272f;color:#bfaaff;box-shadow:0 2px 8px #7e57c244;transition:background 0.18s,transform 0.18s;">Admin</button>
-            <button class="role-btn" data-role="mechanic" data-i18n-key="login_role_mechanic" style="padding:12px 32px;border-radius:18px;border:none;font-size:1.1rem;font-weight:700;cursor:pointer;background:#20c997;color:#fff;box-shadow:0 2px 8px #20c99744;transition:background 0.18s,transform 0.18s;">Mechanic</button>
-        </div>
-        <div class="auth-modal-content" id="authModalContent">
-            <!-- User Form Panel (default) -->
-            <div class="auth-form-panel" id="authFormPanelUser">
-                <div id="loginForm" class="auth-form active">
-                    <div class="auth-logo">
-                        <img src="https://via.placeholder.com/48x48?text=MC" alt="Logo" style="border-radius:12px;">
-                        <span class="auth-brand">Mech Connect</span>
-                    </div>
-                    <h2 class="auth-title" data-i18n-key="login_title_signin">Login to Your Account</h2>
-                    <p class="auth-subtitle" data-i18n-key="login_subtitle_social">Login using social networks</p>
-                    <div class="auth-socials">
-                        <button class="auth-social-btn fb" title="Facebook"><span>f</span></button>
-                        <button class="auth-social-btn google" title="Google"><span>G+</span></button>
-                        <button class="auth-social-btn linkedin" title="LinkedIn"><span>in</span></button>
-                    </div>
-                    <div class="auth-divider"><span>OR</span></div>
-                    <form id="loginForm">
-                        <input type="email" id="email" placeholder="Email" data-i18n-placeholder-key="login_email_placeholder" required class="auth-input">
-                        <div class="auth-password-row">
-                            <input type="password" id="password" placeholder="Password" data-i18n-placeholder-key="login_password_placeholder" required class="auth-input">
-                            <span class="auth-eye" id="showPasswordToggle">&#128065;</span>
-                        </div>
-                        <label style="display:flex;align-items:center;margin:8px 0;">
-                            <input type="checkbox" id="rememberMe" style="margin-right:8px;"> <span data-i18n-key="login_remember">Remember Me</span>
-                        </label>
-                        <button type="submit" class="auth-submit" data-i18n-key="login_signin">Sign In</button>
-                    </form>
-                </div>
-                <div id="signupForm" class="auth-form">
-                    <div class="auth-logo">
-                        <img src="https://via.placeholder.com/48x48?text=MC" alt="Logo" style="border-radius:12px;">
-                        <span class="auth-brand">Mech Connect</span>
-                    </div>
-                    <h2 class="auth-title" data-i18n-key="signup_title">Create Account</h2>
-                    <p class="auth-subtitle" data-i18n-key="signup_subtitle">Sign up using social networks</p>
-                    <div class="auth-socials">
-                        <button class="auth-social-btn fb" title="Facebook"><span>f</span></button>
-                        <button class="auth-social-btn google" title="Google"><span>G+</span></button>
-                        <button class="auth-social-btn linkedin" title="LinkedIn"><span>in</span></button>
-                    </div>
-                    <div class="auth-divider"><span>OR</span></div>
-                    <form>
-                        <input type="text" placeholder="Full Name" data-i18n-placeholder-key="signup_name_placeholder" required class="auth-input">
-                        <input type="email" placeholder="Email" data-i18n-placeholder-key="signup_email_placeholder" required class="auth-input">
-                        <div class="auth-password-row">
-                            <input type="password" placeholder="Password" data-i18n-placeholder-key="signup_password_placeholder" required class="auth-input">
-                            <span class="auth-eye">&#128065;</span>
-                        </div>
-                        <button type="submit" class="auth-submit" data-i18n-key="signup_submit">Sign Up</button>
-                    </form>
+    <div class="app-shell">
+        <aside class="auth-side-menu" id="authSideMenu">
+            <div class="menu-brand">
+                <img src="https://via.placeholder.com/48x48?text=MC" alt="MechConnect Logo">
+                <div>
+                    <span class="menu-title">MechConnect</span>
+                    <p class="menu-tagline">Premium auto service network</p>
                 </div>
             </div>
-            <!-- Admin Form Panel (hidden by default) -->
-            <div class="auth-form-panel" id="authFormPanelAdmin" style="display:none;">
-                <div id="adminLoginForm" class="auth-form active">
-                    <div class="auth-logo">
-                        <img src="https://via.placeholder.com/48x48?text=AD" alt="Logo" style="border-radius:12px;">
-                        <span class="auth-brand">Mech Connect</span>
+            <nav class="menu-links">
+                <a href="/main.html">Home</a>
+                <a href="/login/login.html">Auth Center</a>
+                <a href="/mechanic_registration.html">Mechanic Signup</a>
+                <a href="/admin_dashboard.html">Admin Dashboard</a>
+                <a href="/pending_mechanics.html">Pending Mechanics</a>
+            </nav>
+            <div class="menu-footer">Secure, fast and beautifully responsive.</div>
+            <button id="menuClose" class="menu-close" aria-label="Close menu">&times;</button>
+        </aside>
+
+        <div class="menu-backdrop" id="menuBackdrop"></div>
+
+        <div class="content-area">
+            <header class="auth-header">
+                <button id="menuToggle" class="menu-toggle" aria-label="Open menu">☰</button>
+                <div class="auth-header-left">
+                    <div>
+                        <span class="auth-brand">MechConnect BD</span>
+                        <p class="header-chip">Premium access for users, admins and mechanics</p>
                     </div>
-                    <h2 class="auth-title" data-i18n-key="login_title_signin">Login to Your Account</h2>
-                    <p class="auth-subtitle" data-i18n-key="login_subtitle_social">Login using social networks</p>
-                    <div class="auth-socials">
-                        <button class="auth-social-btn fb" title="Facebook"><span>f</span></button>
-                        <button class="auth-social-btn google" title="Google"><span>G+</span></button>
-                        <button class="auth-social-btn linkedin" title="LinkedIn"><span>in</span></button>
+                </div>
+                <div class="auth-header-actions">
+                    <span class="lang-selector">
+                        <select id="languageSelect" aria-label="Select language">
+                            <option value="en">English</option>
+                            <option value="bn">বাংলা</option>
+                        </select>
+                    </span>
+                    <button id="pageThemeToggle" class="theme-toggle" aria-label="Toggle theme">🌙 Dark Mode</button>
+                </div>
+            </header>
+
+            <div class="auth-modal">
+                <div class="auth-modal-header">
+                    <div>
+                        <button id="homeButton" class="home-pill" data-i18n-key="login_back_home">← Back to Home</button>
+                        <p class="menu-note">One place for user, admin and mechanic access.</p>
                     </div>
-                    <div class="auth-divider"><span>OR</span></div>
-                    <form>
-                        <input type="email" placeholder="Admin Email" data-i18n-placeholder-key="admin_email_placeholder" required class="auth-input">
-                        <div class="auth-password-row">
-                            <input type="password" placeholder="Password" data-i18n-placeholder-key="login_password_placeholder" required class="auth-input">
-                            <span class="auth-eye">&#128065;</span>
+                    <a href="/main.html" class="auth-modal-close" aria-label="Close auth panel">&times;</a>
+                </div>
+
+                <!-- Role selector (User / Admin / Mechanic) -->
+                <div id="roleSelector" class="role-selector" style="display:flex;justify-content:center;gap:14px;margin:12px 0 8px;">
+                    <button class="role-btn active" data-role="user">User</button>
+                    <button class="role-btn" data-role="admin">Admin</button>
+                    <button class="role-btn" data-role="mechanic">Mechanic</button>
+                </div>
+
+                <div class="auth-modal-content" id="authModalContent">
+                    <!-- User Form Panel (default) -->
+                    <div class="auth-form-panel" id="authFormPanelUser">
+                        <div id="loginPanel" class="auth-form active">
+                            <div class="auth-logo">
+                                <img src="https://via.placeholder.com/48x48?text=MC" alt="Logo">
+                                <div>
+                                    <span class="auth-brand">MechConnect BD</span>
+                                    <p class="brand-tagline">বাংলাদেশের দ্রুততম অটো সার্ভিস নেটওয়ার্ক</p>
+                                </div>
+                            </div>
+                            <h2 class="auth-title" data-i18n-key="login_title_signin">Login to Your Account</h2>
+                            <p class="auth-subtitle" data-i18n-key="login_subtitle_social">Login using social networks</p>
+                            <div class="auth-socials">
+                                <button class="auth-social-btn fb" title="Facebook"><span>f</span></button>
+                                <button class="auth-social-btn google" title="Google"><span>G+</span></button>
+                                <button class="auth-social-btn linkedin" title="LinkedIn"><span>in</span></button>
+                            </div>
+                            <div class="auth-divider"><span>OR</span></div>
+                            <form id="loginForm">
+                                <input type="email" id="email" placeholder="Email" data-i18n-placeholder-key="login_email_placeholder" required class="auth-input">
+                                <div class="auth-password-row">
+                                    <input type="password" id="password" placeholder="Password" data-i18n-placeholder-key="login_password_placeholder" required class="auth-input">
+                                    <span class="auth-eye" id="showPasswordToggle">&#128065;</span>
+                                </div>
+                                <label class="remember-label">
+                                    <input type="checkbox" id="rememberMe"> <span data-i18n-key="login_remember">Remember Me</span>
+                                </label>
+                                <button type="submit" class="auth-submit" data-i18n-key="login_signin">Sign In</button>
+                            </form>
                         </div>
-                        <button type="submit" class="auth-submit" data-i18n-key="login_signin">Sign In</button>
-                    </form>
-                </div>
-            </div>
-            <!-- Mechanic Form Panel (hidden by default) -->
-            <div class="auth-form-panel" id="authFormPanelMechanic" style="display:none;">
-                <div id="mechanicLoginForm" class="auth-form active">
-                    <div class="auth-logo">
-                        <img src="https://via.placeholder.com/48x48?text=ME" alt="Mechanic" style="border-radius:12px;">
-                        <span class="auth-brand" style="color:#20c997;">Mechanic Portal</span>
-                    </div>
-                    <h2 class="auth-title" style="color:#222;" data-i18n-key="mechanic_login_title">Mechanic Login</h2>
-                    <p class="auth-subtitle" style="color:#888;" data-i18n-key="mechanic_login_subtitle">Sign in as mechanic</p>
-                    <form>
-                        <input type="email" placeholder="Mechanic Email" data-i18n-placeholder-key="mechanic_email_placeholder" required class="auth-input">
-                        <div class="auth-password-row">
-                            <input type="password" placeholder="Password" data-i18n-placeholder-key="login_password_placeholder" required class="auth-input">
-                            <span class="auth-eye">&#128065;</span>
+                        <div id="signupPanel" class="auth-form">
+                            <div class="auth-logo">
+                                <img src="https://via.placeholder.com/48x48?text=MC" alt="Logo">
+                                <span class="auth-brand">Mech Connect</span>
+                            </div>
+                            <h2 class="auth-title" data-i18n-key="signup_title">Create Account</h2>
+                            <p class="auth-subtitle" data-i18n-key="signup_subtitle">Sign up using social networks</p>
+                            <div class="auth-socials">
+                                <button class="auth-social-btn fb" title="Facebook"><span>f</span></button>
+                                <button class="auth-social-btn google" title="Google"><span>G+</span></button>
+                                <button class="auth-social-btn linkedin" title="LinkedIn"><span>in</span></button>
+                            </div>
+                            <div class="auth-divider"><span>OR</span></div>
+                            <form id="signupForm">
+                                <input type="text" id="signupFullName" placeholder="Full Name" data-i18n-placeholder-key="signup_name_placeholder" required class="auth-input">
+                                <input type="email" id="signupEmail" placeholder="Email" data-i18n-placeholder-key="signup_email_placeholder" required class="auth-input">
+                                <div class="auth-password-row">
+                                    <input type="password" id="signupPassword" placeholder="Password" data-i18n-placeholder-key="signup_password_placeholder" required class="auth-input">
+                                    <span class="auth-eye">&#128065;</span>
+                                </div>
+                                <button type="submit" class="auth-submit" data-i18n-key="signup_submit">Sign Up</button>
+                            </form>
                         </div>
-                        <button type="submit" class="auth-submit" data-i18n-key="login_signin">Sign In</button>
-                    </form>
-                </div>
-                <div id="mechanicSignupForm" class="auth-form">
-                    <div class="auth-logo">
-                        <img src="https://via.placeholder.com/48x48?text=ME" alt="Mechanic" style="border-radius:12px;">
-                        <span class="auth-brand" style="color:#20c997;">Mechanic Portal</span>
                     </div>
-                    <h2 class="auth-title" style="color:#222;" data-i18n-key="mechanic_signup_title">Become a Mechanic</h2>
-                    <p class="auth-subtitle" style="color:#888;" data-i18n-key="mechanic_signup_subtitle">Join our network today</p>
-                    <div style="text-align: center; padding: 40px 0;">
-                        <div style="font-size: 2.4rem; margin-bottom: 16px;">🔧</div>
-                        <p style="color: #555; margin-bottom: 24px;" data-i18n-key="mechanic_register_info">To join as a mechanic, you'll need to submit a comprehensive proposal with your documents and qualifications.</p>
-                        <button type="button" onclick="window.location.href='/mechanic_registration.html'" class="auth-submit" style="width: 100%;" data-i18n-key="mechanic_register_button">Start Registration →</button>
+                    <!-- Admin Form Panel (hidden by default) -->
+                    <div class="auth-form-panel" id="authFormPanelAdmin" style="display:none;">
+                        <div id="adminPanel" class="auth-form active">
+                            <div class="auth-logo">
+                                <img src="https://via.placeholder.com/48x48?text=AD" alt="Logo">
+                                <span class="auth-brand">Mech Connect</span>
+                            </div>
+                            <h2 class="auth-title" data-i18n-key="login_title_signin">Login to Your Account</h2>
+                            <p class="auth-subtitle" data-i18n-key="login_subtitle_social">Login using social networks</p>
+                            <div class="auth-socials">
+                                <button class="auth-social-btn fb" title="Facebook"><span>f</span></button>
+                                <button class="auth-social-btn google" title="Google"><span>G+</span></button>
+                                <button class="auth-social-btn linkedin" title="LinkedIn"><span>in</span></button>
+                            </div>
+                            <div class="auth-divider"><span>OR</span></div>
+                            <form id="adminLoginForm">
+                                <input type="email" id="adminEmail" placeholder="Admin Email" data-i18n-placeholder-key="admin_email_placeholder" required class="auth-input">
+                                <div class="auth-password-row">
+                                    <input type="password" id="adminPassword" placeholder="Password" data-i18n-placeholder-key="login_password_placeholder" required class="auth-input">
+                                    <span class="auth-eye">&#128065;</span>
+                                </div>
+                                <button type="submit" class="auth-submit" data-i18n-key="login_signin">Sign In</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div style="margin-top:18px;text-align:center;">
-                    <button class="auth-switch-btn" id="showMechanicSignup" style="background:#fff;color:#20c997;" data-i18n-key="mechanic_register_label">Register</button>
-                    <button class="auth-switch-btn" id="showMechanicLogin" style="background:#fff;color:#7e57c2;display:none;" data-i18n-key="mechanic_register_show_login">Sign In</button>
-                </div>
-            </div>
-            <div class="auth-side-panel" id="authSidePanel">
-                <div class="auth-side-content" id="loginSide">
-                    <h2 data-i18n-key="auth_new_here_title">New Here?</h2>
-                    <p data-i18n-key="auth_new_here_text">Sign up and discover a great amount of new opportunities!</p>
-                    <button class="auth-switch-btn" id="showSignup" data-i18n-key="auth_show_signup">Sign Up</button>
-                </div>
-                <div class="auth-side-content" id="signupSide" style="display:none;">
-                    <h2 data-i18n-key="auth_already_title">Already have an account?</h2>
-                    <p data-i18n-key="auth_already_text">Sign in to access your account!</p>
-                    <button class="auth-switch-btn" id="showLogin" data-i18n-key="auth_show_login">Sign In</button>
+                    <!-- Mechanic Form Panel (hidden by default) -->
+                    <div class="auth-form-panel" id="authFormPanelMechanic" style="display:none;">
+                        <div id="mechanicPanel" class="auth-form active">
+                            <div class="auth-logo">
+                                <img src="https://via.placeholder.com/48x48?text=ME" alt="Mechanic">
+                                <span class="auth-brand" style="color:#20c997;">Mechanic Portal</span>
+                            </div>
+                            <h2 class="auth-title" style="color:#222;" data-i18n-key="mechanic_login_title">Mechanic Login</h2>
+                            <p class="auth-subtitle" style="color:#888;" data-i18n-key="mechanic_login_subtitle">Sign in as mechanic</p>
+                            <form id="mechanicLoginForm">
+                                <input type="email" id="mechanicEmail" placeholder="Mechanic Email" data-i18n-placeholder-key="mechanic_email_placeholder" required class="auth-input">
+                                <div class="auth-password-row">
+                                    <input type="password" id="mechanicPassword" placeholder="Password" data-i18n-placeholder-key="login_password_placeholder" required class="auth-input">
+                                    <span class="auth-eye">&#128065;</span>
+                                </div>
+                                <button type="submit" class="auth-submit" data-i18n-key="login_signin">Sign In</button>
+                            </form>
+                        </div>
+                        <div id="mechanicSignupForm" class="auth-form">
+                            <div class="auth-logo">
+                                <img src="https://via.placeholder.com/48x48?text=ME" alt="Mechanic">
+                                <span class="auth-brand" style="color:#20c997;">Mechanic Portal</span>
+                            </div>
+                            <h2 class="auth-title" style="color:#222;" data-i18n-key="mechanic_signup_title">Become a Mechanic</h2>
+                            <p class="auth-subtitle" style="color:#888;" data-i18n-key="mechanic_signup_subtitle">Join our network today</p>
+                            <div class="mechanic-cta-box">
+                                <div class="mechanic-cta-icon">🔧</div>
+                                <p data-i18n-key="mechanic_register_info">To join as a mechanic, you'll need to submit a comprehensive proposal with your documents and qualifications.</p>
+                                <button type="button" onclick="window.location.href='/mechanic_registration.html'" class="auth-submit" data-i18n-key="mechanic_register_button">Start Registration →</button>
+                            </div>
+                        </div>
+                        <div class="mechanic-switch-wrap">
+                            <button class="auth-switch-btn" id="showMechanicSignup" data-i18n-key="mechanic_register_label">Register</button>
+                            <button class="auth-switch-btn" id="showMechanicLogin" style="display:none;" data-i18n-key="mechanic_register_show_login">Sign In</button>
+                        </div>
+                    </div>
+                    <div class="auth-side-panel" id="authSidePanel">
+                        <div class="auth-side-controls">
+                            <button class="side-nav-btn" data-target="login">Sign In</button>
+                            <button class="side-nav-btn" data-target="signup">Sign Up</button>
+                            <button class="side-nav-btn" data-target="mechanic">Mechanic</button>
+                            <button class="side-nav-btn" data-target="admin">Admin</button>
+                        </div>
+                        <div class="auth-side-content" id="loginSide">
+                            <h2 data-i18n-key="auth_new_here_title">New Here?</h2>
+                            <p data-i18n-key="auth_new_here_text">Sign up and discover a great amount of new opportunities!</p>
+                            <button class="auth-switch-btn" id="showSignup" data-i18n-key="auth_show_signup">Sign Up</button>
+                        </div>
+                        <div class="auth-side-content" id="signupSide" style="display:none;">
+                            <h2 data-i18n-key="auth_already_title">Already have an account?</h2>
+                            <p data-i18n-key="auth_already_text">Sign in to access your account!</p>
+                            <button class="auth-switch-btn" id="showLogin" data-i18n-key="auth_show_login">Sign In</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Add these elements for JS functionality -->
-    <div id="errorMsg" style="color:red;text-align:center;margin-top:10px;"></div>
-    <div id="spinner" style="display:none;text-align:center;margin:10px;">
-        <span>Loading...</span>
-    </div>
-    <script src="login.js"></script>
-    <script src="../i18n.js"></script>
-    <script>
-    // Role selector logic
-    const roleBtns = document.querySelectorAll('.role-btn');
-    const userPanel = document.getElementById('authFormPanelUser');
-    const adminPanel = document.getElementById('authFormPanelAdmin');
-    const mechanicPanel = document.getElementById('authFormPanelMechanic');
-    const authSidePanel = document.getElementById('authSidePanel');
-    function showPanel(role) {
-        roleBtns.forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.role-btn[data-role="'+role+'"]').classList.add('active');
-        userPanel.style.display = (role === 'user') ? '' : 'none';
-        adminPanel.style.display = (role === 'admin') ? '' : 'none';
-        mechanicPanel.style.display = (role === 'mechanic') ? '' : 'none';
-        // Side panel color change for admin/mechanic
-        if(role === 'admin') {
-            authSidePanel.style.background = 'linear-gradient(135deg,#23272f 60%,#7e57c2 100%)';
-            authSidePanel.style.color = '#fff';
-        } else if(role === 'mechanic') {
-            authSidePanel.style.background = 'linear-gradient(135deg,#20c997 60%,#7e57c2 100%)';
-            authSidePanel.style.color = '#fff';
-        } else {
-            authSidePanel.style.background = '';
-            authSidePanel.style.color = '';
-        }
-    }
-    roleBtns.forEach(btn => {
-        btn.onclick = () => showPanel(btn.getAttribute('data-role'));
-    });
-
-    // Mechanic login/signup switch
-    document.getElementById('showMechanicSignup').onclick = function() {
-        document.getElementById('mechanicLoginForm').classList.remove('active');
-        document.getElementById('mechanicSignupForm').classList.add('active');
-        this.style.display = 'none';
-        document.getElementById('showMechanicLogin').style.display = '';
-    };
-    document.getElementById('showMechanicLogin').onclick = function() {
-        document.getElementById('mechanicSignupForm').classList.remove('active');
-        document.getElementById('mechanicLoginForm').classList.add('active');
-        this.style.display = 'none';
-        document.getElementById('showMechanicSignup').style.display = '';
-    };
-
-    // Switch between login/signup
-    function showLoginForm() {
-        document.getElementById('loginForm').classList.add('active');
-        document.getElementById('signupForm').classList.remove('active');
-        document.getElementById('loginSide').style.display = '';
-        document.getElementById('signupSide').style.display = 'none';
-    }
-    function showSignupForm() {
-        document.getElementById('loginForm').classList.remove('active');
-        document.getElementById('signupForm').classList.add('active');
-        document.getElementById('loginSide').style.display = 'none';
-        document.getElementById('signupSide').style.display = '';
-    }
-    document.getElementById('showSignup').onclick = showSignupForm;
-    document.getElementById('showLogin').onclick = showLoginForm;
-
-    // Password eye toggle (for all forms)
-    document.querySelectorAll('.auth-eye').forEach(eye => {
-        eye.onclick = function() {
-            const input = eye.previousElementSibling;
-            input.type = input.type === 'password' ? 'text' : 'password';
-        };
-    });
-    </script>
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="spinner" class="spinner"><span>Loading...</span></div>
+    <script src="/login/login.js"></script>
+    <script src="/i18n.js"></script>
 </body>
 </html>

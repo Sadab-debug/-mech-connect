@@ -844,10 +844,13 @@
         function changeSection(direction) {
             if (!validateSection(currentSection)) return;
 
-            currentSection += direction;
-            if (currentSection < 1) currentSection = 1;
-            if (currentSection > totalSections) submitForm();
+            const nextSection = currentSection + direction;
+            if (nextSection > totalSections) {
+                submitForm();
+                return;
+            }
 
+            currentSection = Math.max(1, Math.min(nextSection, totalSections));
             updateFormDisplay();
         }
 
@@ -858,7 +861,7 @@
 
             const required = {
                 1: ['fullName', 'email', 'password', 'age', 'mobile', 'dob', 'address', 'profilePhotoInput'],
-                2: ['workshopName', 'experience', 'hourlyRate', 'workingHours', 'education', 'skillInput', 'description'],
+                2: ['workshopName', 'experience', 'hourlyRate', 'workingHours', 'education', 'description'],
                 3: ['skillCertInput', 'educationCertInput', 'nidNumber', 'nidPhotoInput', 'birthCertNumber', 'birthCertPhotoInput'],
                 4: [],
                 5: ['agreementCheckbox']

@@ -71,6 +71,26 @@ def trigger_pusher_event(channel, event, data):
 with app.app_context():
     db.create_all()
 
+    # Ensure a known default admin account exists.
+    default_email = os.environ.get('DEFAULT_ADMIN_EMAIL', 'admin@mechconnect.local')
+    default_password = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'Admin@1234')
+    default_username = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
+    default_full_name = os.environ.get('DEFAULT_ADMIN_FULL_NAME', 'Default Admin')
+    default_admin = Admin.query.filter_by(email=default_email).first()
+    if not default_admin:
+        if Admin.query.filter_by(username=default_username).first():
+            default_username = f"{default_username}_1"
+        new_admin = Admin(
+            username=default_username,
+            email=default_email,
+            password=Admin.hash_password(default_password),
+            full_name=default_full_name,
+            role='admin'
+        )
+        db.session.add(new_admin)
+        db.session.commit()
+        print(f"[INIT] Created default admin account: {default_email} / {default_password}")
+
 # ===== SERVE STATIC FILES =====
 
 @app.route('/')
@@ -107,6 +127,16 @@ def serve_login_js():
 def serve_login_css():
     """Serve login.css"""
     return send_from_directory(basedir, 'login.css')
+
+@app.route('/i18n.js')
+def serve_i18n_js():
+    """Serve i18n.js"""
+    return send_from_directory(parent_dir, 'i18n.js')
+
+@app.route('/i18n.css')
+def serve_i18n_css():
+    """Serve i18n.css"""
+    return send_from_directory(parent_dir, 'i18n.css')
 
 # Serve index files
 @app.route('/index/index.html')
@@ -182,9 +212,12 @@ def serve_mechanic_dashboard_full():
     return send_from_directory(basedir, 'mechanic_dashboard_full.html')
 # ===== USER ROUTES =====
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def api_login():
-    """Handle login for all roles: user, admin, mechanic"""
+    """Handle login page display and login form submission."""
+    if request.method == 'GET':
+        return send_from_directory(basedir, 'login.html')
+
     data = request.json
     email = data.get('username')  # Frontend sends email in username field
     password = data.get('password')
@@ -1570,8 +1603,8 @@ def upload_file():
         file_path = os.path.join(upload_dir, unique_filename)
         file.save(file_path)
         
-        # Return file URL
-        image_url = f"http://127.0.0.1:5000/uploads/chat/{unique_filename}"
+        # Return relative file URL for deployed environments
+        image_url = f"/uploads/chat/{unique_filename}"
         
         return jsonify({
             'success': True,

@@ -467,9 +467,10 @@
       if (text) el.value = text;
     });
 
-    var titleElement = document.querySelector('title[data-i18n-key="page_title"]');
+    var titleElement = document.querySelector('title[data-i18n-key]');
     if (titleElement) {
-      var pageTitle = translateKey('page_title', lang);
+      var titleKey = titleElement.dataset.i18nKey;
+      var pageTitle = translateKey(titleKey, lang);
       if (pageTitle) {
         document.title = pageTitle;
         titleElement.textContent = pageTitle;
