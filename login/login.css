@@ -1170,6 +1170,111 @@ body.dark-mode .auth-submit, body.dark-mode .auth-switch-btn {
     }
 }
 
+/* --- Spotify-like Theme Overrides --- */
+:root {
+    --spotify-bg: #121212; /* page background */
+    --spotify-card: #191414; /* cards / modal */
+    --spotify-surface: #181818;
+    --spotify-text: #FFFFFF;
+    --spotify-muted: #B3B3B3;
+    --spotify-accent: #1DB954;
+}
+
+body {
+    background: var(--spotify-bg) !important;
+    color: var(--spotify-text) !important;
+    font-family: 'Segoe UI', system-ui, -apple-system, 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.app-shell { padding: 18px; }
+
+.auth-side-menu {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.menu-brand .menu-title, .menu-tagline {
+    color: var(--spotify-text);
+}
+
+.menu-links a {
+    color: var(--spotify-muted);
+    background: transparent;
+    padding: 8px 10px;
+    border-radius: 8px;
+}
+.menu-links a:hover { color: var(--spotify-text); background: rgba(255,255,255,0.03); }
+
+.content-area { max-width: 980px; margin: 0 auto; }
+
+.auth-header {
+    background: transparent;
+    border: none;
+    padding: 12px 18px;
+}
+
+.auth-modal {
+    background: var(--spotify-card) !important;
+    border: 1px solid rgba(255,255,255,0.03);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    max-width: 980px;
+}
+
+.auth-modal-content { gap: 18px; }
+
+.auth-form-panel {
+    background: transparent !important;
+    color: var(--spotify-text);
+    padding: 28px 32px !important;
+    border-radius: 8px !important;
+}
+
+.auth-side-panel {
+    background: var(--spotify-surface) !important;
+    color: var(--spotify-text) !important;
+    min-width: 240px;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.auth-title { color: var(--spotify-text); font-size: 1.8rem; }
+.auth-subtitle { color: var(--spotify-muted); }
+
+.auth-input {
+    background: transparent !important;
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--spotify-text) !important;
+}
+.auth-input:focus { box-shadow: 0 6px 18px rgba(29,185,84,0.08); border-color: var(--spotify-accent); }
+
+.auth-submit {
+    background: var(--spotify-accent) !important;
+    color: #000 !important;
+    font-weight: 800;
+    border-radius: 6px !important;
+}
+
+.home-pill { background: transparent; color: var(--spotify-accent); border: 1px solid rgba(29,185,84,0.12); }
+.theme-toggle { background: transparent; border: 1px solid rgba(255,255,255,0.04); color: var(--spotify-muted); }
+
+.role-btn { color: var(--spotify-muted); background: transparent; border: 1px solid rgba(255,255,255,0.03); }
+.role-btn.active { background: var(--spotify-accent); color: #000; border-color: transparent; }
+
+.auth-side-controls .side-nav-btn, .side-nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.03); color: var(--spotify-muted); }
+.side-nav-btn:hover { color: var(--spotify-text); border-color: rgba(255,255,255,0.06); }
+
+.auth-side-content h2 { color: var(--spotify-text); }
+.auth-side-content p { color: var(--spotify-muted); }
+
+/* Backdrop darker for better contrast */
+.menu-backdrop.visible { background: rgba(0,0,0,0.6); }
+
+@media (max-width: 900px) {
+    .auth-side-panel { order: 2; }
+    .auth-form-panel { order: 1; }
+}
+
 /* --- Simplified & Classy Overrides --- */
 /* Tone down heavy gradients, shadows and animations for a cleaner look */
 body {

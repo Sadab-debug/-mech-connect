@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import or_, and_
 import os
 import time
@@ -13,6 +13,18 @@ import pusher
 from models import db, User, Admin, Mechanic, MechanicProposal, MechanicNotification, Booking, Message
 
 app = Flask(__name__, static_folder=None)
+
+# Configure session cookie behavior from environment for production (Vercel)
+# Use env vars to control for local vs production environments.
+app.config.update({
+    'SESSION_COOKIE_HTTPONLY': True,
+    'SESSION_COOKIE_SAMESITE': os.environ.get('SESSION_COOKIE_SAMESITE', 'None'),
+    'SESSION_COOKIE_SECURE': os.environ.get('SESSION_COOKIE_SECURE', 'True') == 'True',
+})
+
+# Optionally set session cookie domain when serving across subdomains
+if os.environ.get('SESSION_COOKIE_DOMAIN'):
+    app.config['SESSION_COOKIE_DOMAIN'] = os.environ.get('SESSION_COOKIE_DOMAIN')
 
 # Database configuration
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -40,7 +52,23 @@ app.secret_key = os.environ.get('SESSION_SECRET_KEY', 'your_secret_key_change_th
 
 # Initialize database with the app
 db.init_app(app)
-CORS(app, supports_credentials=True)
+
+# Configure the session lifetime (days)
+app.permanent_session_lifetime = timedelta(days=int(os.environ.get('SESSION_LIFETIME_DAYS', '7')))
+
+# Configure CORS origins: set FRONTEND_ORIGINS env var to a comma-separated list
+frontend_origins = os.environ.get('FRONTEND_ORIGINS')
+if frontend_origins:
+    origins = [o.strip() for o in frontend_origins.split(',') if o.strip()]
+else:
+    origins = []
+
+# If origins list is empty, default to allowing same-origin only (None means all in flask-cors),
+# but when deploying you should set FRONTEND_ORIGINS to your Vercel app URL(s).
+if origins:
+    CORS(app, supports_credentials=True, origins=origins)
+else:
+    CORS(app, supports_credentials=True)
 
 # Initialize Pusher
 pusher_app_id = os.environ.get('PUSHER_APP_ID')
@@ -250,6 +278,8 @@ def api_login():
             'role': user.role,
             'profile_pic': user.profile_pic
         }
+        # make the session persistent (honors app.permanent_session_lifetime)
+        session.permanent = True
         return jsonify({
             'success': True,
             'message': f'Login successful! Welcome {user.username}',
@@ -305,6 +335,7 @@ def api_signup():
             'role': new_user.role,
             'profile_pic': new_user.profile_pic
         }
+        session.permanent = True
         
         return jsonify({
             'success': True,
@@ -401,6 +432,7 @@ def mechanic_signup():
             'role': new_mechanic.role,
             'profile_pic': new_mechanic.profile_pic
         }
+        session.permanent = True
         
         return jsonify({
             'success': True,
@@ -708,6 +740,7 @@ def submit_mechanic_proposal():
             'profile_pic': mechanic.profile_pic,
             'is_approved': False
         }
+        session.permanent = True
         
         return jsonify({
             'success': True,
