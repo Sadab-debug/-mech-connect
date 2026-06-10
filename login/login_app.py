@@ -172,6 +172,12 @@ def serve_signup_html():
     """Serve signup page via login.html"""
     return send_from_directory(basedir, 'login.html')
 
+@app.route('/register')
+@app.route('/register.html')
+def serve_register_html():
+    """Serve register page via login.html"""
+    return send_from_directory(basedir, 'login.html')
+
 @app.route('/i18n.js')
 def serve_i18n_js():
     """Serve i18n.js"""

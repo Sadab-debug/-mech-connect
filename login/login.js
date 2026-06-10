@@ -165,9 +165,17 @@
     if (showLoginBtn) showLoginBtn.addEventListener('click', showLoginForm);
 
     const showSignupInlineButton = document.getElementById('showSignupInline');
+    const showLoginFromSignupButton = document.getElementById('showLoginFromSignup');
     if (showSignupInlineButton) {
         showSignupInlineButton.addEventListener('click', function () {
             showSignupForm();
+            selectedRole = 'user';
+            showPanel(selectedRole);
+        });
+    }
+    if (showLoginFromSignupButton) {
+        showLoginFromSignupButton.addEventListener('click', function () {
+            showLoginForm();
             selectedRole = 'user';
             showPanel(selectedRole);
         });
