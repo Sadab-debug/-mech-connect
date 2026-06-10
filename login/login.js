@@ -138,6 +138,16 @@
         document.getElementById('signupSide')?.style.setProperty('display', '');
     }
 
+    function maybeActivateSignupMode() {
+        const pathname = window.location.pathname.toLowerCase();
+        const query = window.location.search.toLowerCase();
+        if (pathname.endsWith('/signup') || pathname.endsWith('/signup.html') || query.includes('mode=signup')) {
+            selectedRole = 'user';
+            showPanel(selectedRole);
+            showSignupForm();
+        }
+    }
+
     roleButtons.forEach(button => {
         button.addEventListener('click', function() {
             if (!this.dataset.role) return;
@@ -190,6 +200,7 @@
     applySavedTheme();
     showPanel(selectedRole);
     syncLanguageSelector();
+    maybeActivateSignupMode();
 
     if (localStorage.getItem('rememberMe') === 'true') {
         emailInput.value = localStorage.getItem('savedEmail') || '';

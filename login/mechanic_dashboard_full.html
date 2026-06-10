@@ -446,7 +446,7 @@
                 <div class="sidebar-subtitle">Mechanic Portal</div>
             </div>
             <ul class="sidebar-nav">
-                <li><a href="http://127.0.0.1:5000/mechanic_bookings.html">🏠 Home</a></li>
+                <li><a href="/mechanic_bookings.html">🏠 Home</a></li>
                 <li><a href="#" class="tab-trigger active" data-tab="dashboard">📊 Dashboard</a></li>
                 <li><a href="#" class="tab-trigger" data-tab="bookings">📅 My Bookings</a></li>
                 <li><a href="#" class="tab-trigger" data-tab="profile">👤 My Profile</a></li>
@@ -829,7 +829,7 @@
         // Load notifications
         async function loadNotifications() {
             try {
-                const response = await fetch('http://127.0.0.1:5000/mechanic/notifications', {
+                const response = await fetch('/mechanic/notifications', {
                     credentials: 'include'
                 });
 

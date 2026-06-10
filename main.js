@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function loadMechanics() {
     try {
-      var res = await fetch('http://127.0.0.1:5000/mechanics', { credentials: 'include' });
+      var res = await fetch('/mechanics', { credentials: 'include' });
       var data = await res.json();
       if (data && data.success) {
         allMechanics = Array.isArray(data.mechanics) ? data.mechanics : [];

@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Logout
     document.getElementById('logoutAdminBtn').addEventListener('click', function () {
-        fetch('http://127.0.0.1:5000/logout', {
+        fetch('/logout', {
             method: 'POST',
             credentials: 'include'
         }).then(() => {
@@ -52,7 +52,7 @@ function switchTab(tabName) {
 }
 
 function loadAdminProfile() {
-    fetch('http://127.0.0.1:5000/profile', {
+    fetch('/profile', {
         method: 'GET',
         credentials: 'include'
     })
@@ -74,8 +74,8 @@ function loadAdminProfile() {
 
 function loadDashboardData() {
     Promise.all([
-        fetch('http://127.0.0.1:5000/api/stats', { credentials: 'include' }).then(r => r.json()),
-        fetch('http://127.0.0.1:5000/mechanics', { credentials: 'include' }).then(r => r.json())
+        fetch('/api/stats', { credentials: 'include' }).then(r => r.json()),
+        fetch('/mechanics', { credentials: 'include' }).then(r => r.json())
     ])
     .then(([stats, mechanics]) => {
         // Update stats
@@ -93,7 +93,7 @@ function loadDashboardData() {
 
 function loadUsers() {
     // Fetch all users
-    fetch('http://127.0.0.1:5000/api/users', {
+    fetch('/api/users', {
         method: 'GET',
         credentials: 'include'
     })
@@ -129,7 +129,7 @@ function loadUsers() {
 }
 
 function loadMechanics() {
-    fetch('http://127.0.0.1:5000/mechanics', {
+    fetch('/mechanics', {
         method: 'GET',
         credentials: 'include'
     })

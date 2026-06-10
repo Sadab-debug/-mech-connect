@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', function() {
     async function initPusher() {
         try {
             // Get config
-            const configRes = await fetch('http://127.0.0.1:5000/api/config', { credentials: 'include' });
+            const configRes = await fetch('/api/config', { credentials: 'include' });
             const configData = await configRes.json();
             
             // Get profile
-            const profileRes = await fetch('http://127.0.0.1:5000/profile', { credentials: 'include' });
+            const profileRes = await fetch('/profile', { credentials: 'include' });
             const profileData = await profileRes.json();
             
             if (configData.pusher_key && profileData.logged_in) {
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load user bookings
     async function loadBookings() {
         try {
-            const res = await fetch('http://127.0.0.1:5000/bookings', { credentials: 'include' });
+            const res = await fetch('/bookings', { credentials: 'include' });
             const data = await res.json();
             if (data && data.success) {
                 allBookings = Array.isArray(data.bookings) ? data.bookings : [];
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const payload = window.currentBookingPayload;
         if (!payload) return;
         try {
-            const res = await fetch('http://127.0.0.1:5000/bookings', {
+            const res = await fetch('/bookings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const bookingId = e.target.dataset.bookingId;
             if (!bookingId) return;
             try {
-                const res = await fetch(`http://127.0.0.1:5000/bookings/${bookingId}/complete`, {
+                const res = await fetch(`/bookings/${bookingId}/complete`, {
                     method: 'POST',
                     credentials: 'include'
                 });
@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mechanicId = urlParams.get('mechanic_id');
     if (mechanicId) {
         // Fetch mechanic details and open confirmation modal
-        fetch(`http://127.0.0.1:5000/mechanics/${mechanicId}`, { credentials: 'include' })
+        fetch(`/mechanics/${mechanicId}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 if (data && data.success && data.mechanic) {

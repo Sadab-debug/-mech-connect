@@ -36,7 +36,7 @@ class ChatSystem {
 
     async loadConfig() {
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/config', {
+            const response = await fetch('/api/config', {
                 credentials: 'include'
             });
             const data = await response.json();
@@ -52,7 +52,7 @@ class ChatSystem {
 
     async loadCurrentUser() {
         try {
-            const response = await fetch('http://127.0.0.1:5000/profile', {
+            const response = await fetch('/profile', {
                 credentials: 'include'
             });
             const data = await response.json();
@@ -63,11 +63,11 @@ class ChatSystem {
                 this.subscribeToPusher();
             } else {
                 // Redirect to login if not authenticated
-                window.location.href = 'http://127.0.0.1:5000/login/login.html';
+                window.location.href = '/login/login.html';
             }
         } catch (error) {
             console.error('Error loading current user:', error);
-            window.location.href = 'http://127.0.0.1:5000/login/login.html';
+            window.location.href = '/login/login.html';
         }
     }
 
@@ -248,7 +248,7 @@ class ChatSystem {
 
     async loadConversations() {
         try {
-            const response = await fetch('http://127.0.0.1:5000/chat/conversations', {
+            const response = await fetch('/chat/conversations', {
                 credentials: 'include'
             });
             
@@ -346,7 +346,7 @@ class ChatSystem {
 
     async loadMessages(conversationId) {
         try {
-            const response = await fetch(`http://127.0.0.1:5000/chat/messages/${conversationId}`, {
+            const response = await fetch(`/chat/messages/${conversationId}`, {
                 credentials: 'include'
             });
             
@@ -514,7 +514,7 @@ class ChatSystem {
             formData.append('receiver_id', messageData.receiver_id);
             
             try {
-                const response = await fetch('http://127.0.0.1:5000/chat/upload', {
+                const response = await fetch('/chat/upload', {
                     method: 'POST',
                     credentials: 'include',
                     body: formData
@@ -536,7 +536,7 @@ class ChatSystem {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/chat/send', {
+            const response = await fetch('/chat/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -617,7 +617,7 @@ class ChatSystem {
 
     async loadUsers() {
         try {
-            const response = await fetch('http://127.0.0.1:5000/chat/users', {
+            const response = await fetch('/chat/users', {
                 credentials: 'include'
             });
             
@@ -695,7 +695,7 @@ class ChatSystem {
 
     async sendMessageDirect(conversationId, content) {
         try {
-            const response = await fetch('http://127.0.0.1:5000/chat/send', {
+            const response = await fetch('/chat/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -722,7 +722,7 @@ class ChatSystem {
 
     async startConversation(userId) {
         try {
-            const response = await fetch('http://127.0.0.1:5000/chat/start', {
+            const response = await fetch('/chat/start', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

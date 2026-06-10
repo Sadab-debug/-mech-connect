@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', function() {
     async function initPusher() {
         try {
             // Get config
-            const configRes = await fetch('http://127.0.0.1:5000/api/config', { credentials: 'include' });
+            const configRes = await fetch('/api/config', { credentials: 'include' });
             const configData = await configRes.json();
             
             // Get profile
-            const profileRes = await fetch('http://127.0.0.1:5000/profile', { credentials: 'include' });
+            const profileRes = await fetch('/profile', { credentials: 'include' });
             const profileData = await profileRes.json();
             
             if (configData.pusher_key && profileData.logged_in) {
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadBookings() {
         try {
-            const res = await fetch('http://127.0.0.1:5000/mechanic/bookings', { credentials: 'include' });
+            const res = await fetch('/mechanic/bookings', { credentials: 'include' });
             const data = await res.json();
             if (data && data.success) {
                 allBookings = Array.isArray(data.bookings) ? data.bookings : [];
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const bookingId = e.target.dataset.bookingId;
             if (!bookingId) return;
             try {
-                const res = await fetch(`http://127.0.0.1:5000/mechanic/bookings/${bookingId}/accept`, {
+                const res = await fetch(`/mechanic/bookings/${bookingId}/accept`, {
                     method: 'POST',
                     credentials: 'include'
                 });
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
             note: document.getElementById('counterNote').value
         };
         try {
-            const res = await fetch(`http://127.0.0.1:5000/mechanic/bookings/${currentBookingId}/counter`, {
+            const res = await fetch(`/mechanic/bookings/${currentBookingId}/counter`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!bookingId) return;
             if (!confirm('Reject this booking?')) return;
             try {
-                const res = await fetch(`http://127.0.0.1:5000/mechanic/bookings/${bookingId}/reject`, {
+                const res = await fetch(`/mechanic/bookings/${bookingId}/reject`, {
                     method: 'POST',
                     credentials: 'include'
                 });

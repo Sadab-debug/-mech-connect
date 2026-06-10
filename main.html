@@ -142,7 +142,7 @@
         // Show mechanic dashboard link if role is mechanic
         if (user.role === 'mechanic') {
             const dashboardLink = document.createElement('a');
-            dashboardLink.href = 'http://127.0.0.1:5000/mechanic_bookings.html';
+            dashboardLink.href = '/mechanic_bookings.html';
             dashboardLink.textContent = 'My Bookings';
             dashboardLink.style.marginLeft = '16px';
             profileNav.appendChild(dashboardLink);
@@ -152,7 +152,7 @@
         document.getElementById('loginNav').style.display = '';
         document.getElementById('profileNav').style.display = 'none';
     }
-    fetch('http://127.0.0.1:5000/profile', {
+    fetch('/profile', {
         method: 'GET',
         credentials: 'include'
     })
@@ -167,7 +167,7 @@
     .catch(() => resetProfileNav());
 
     document.getElementById('logoutBtn').onclick = function() {
-        fetch('http://127.0.0.1:5000/logout', {
+        fetch('/logout', {
             method: 'POST',
             credentials: 'include'
         }).then(() => {

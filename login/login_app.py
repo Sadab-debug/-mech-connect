@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from sqlalchemy import or_, and_
 import os
+import tempfile
 import time
 import pusher
 
@@ -48,8 +49,15 @@ else:
                 return f.read().strip()
         except:
             return 'mechconnect.db'
+
     db_name = get_current_db()
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, db_name)}'
+    db_path = os.path.join(basedir, db_name)
+    if os.environ.get('VERCEL') == '1' or not os.access(basedir, os.W_OK):
+        temp_db_dir = tempfile.gettempdir()
+        db_path = os.path.join(temp_db_dir, db_name)
+        print(f"[DB] Using temporary writable SQLite path: {db_path}")
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ.get('SESSION_SECRET_KEY', 'your_secret_key_change_this')
@@ -158,6 +166,11 @@ def serve_login_js():
 def serve_login_css():
     """Serve login.css"""
     return send_from_directory(basedir, 'login.css')
+
+@app.route('/signup.html')
+def serve_signup_html():
+    """Serve signup page via login.html"""
+    return send_from_directory(basedir, 'login.html')
 
 @app.route('/i18n.js')
 def serve_i18n_js():
