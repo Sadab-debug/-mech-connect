@@ -711,12 +711,15 @@ def submit_mechanic_proposal():
         if Mechanic.query.filter_by(email=email).first():
             return jsonify({'success': False, 'message': 'Email already registered!'}), 400
         
-        # Parse skills from JSON string
-        skills_str = data.get('skills', '[]')
-        try:
-            skills = json.loads(skills_str)
-        except:
+        # Parse skills from a plain text field or JSON string
+        skills_str = data.get('skills', '') or data.get('expertise', '')
+        if isinstance(skills_str, list):
+            skills = skills_str
+        else:
             skills = []
+            if isinstance(skills_str, str) and skills_str.strip():
+                # Accept comma-separated skills from the textarea
+                skills = [skill.strip() for skill in skills_str.split(',') if skill.strip()]
         
         # Create mechanic (not approved yet)
         mechanic = Mechanic(
@@ -744,8 +747,9 @@ def submit_mechanic_proposal():
         # TODO: Store files properly
         # For demo, we'll store the base64 strings in the database fields
         # In production, use cloud storage like AWS S3, Cloudinary, etc.
-        if data.get('profile_photo'):
-            mechanic.profile_pic = data.get('profile_photo', '')[:200]
+        profile_photo = data.get('profile_photo')
+        if profile_photo:
+            mechanic.profile_pic = profile_photo[:200]
         
         db.session.add(mechanic)
         db.session.commit()

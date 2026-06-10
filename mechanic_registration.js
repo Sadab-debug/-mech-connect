@@ -47,11 +47,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 experience_years: parseInt(formData.get('experience')),
                 hourly_rate: parseFloat(formData.get('hourlyRate')),
                 working_hours: formData.get('workingHours'),
+                skills: formData.get('skills'),
                 expertise: formData.get('skills'),
                 education: formData.get('education'),
                 nid_number: formData.get('nidNumber'),
                 birth_certificate_number: formData.get('birthCertNumber'),
                 work_history: formData.get('workHistory'),
+                profile_photo: filesToSend.profilePhoto?.[0] || null,
+                skill_certificates: filesToSend.skillCerts || [],
+                education_certificate: filesToSend.eduCert?.[0] || null,
+                nid_photo: filesToSend.nidPhoto?.[0] || null,
+                birth_certificate_photo: filesToSend.birthCertPhoto?.[0] || null,
+                work_photos: filesToSend.workPhotos || [],
                 files: filesToSend
             };
             

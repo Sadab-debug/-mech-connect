@@ -127,8 +127,8 @@
     function showLoginForm() {
         selectedRole = 'user';
         showPanel(selectedRole);
-        document.getElementById('loginForm')?.classList.add('active');
-        document.getElementById('signupForm')?.classList.remove('active');
+        document.getElementById('loginPanel')?.classList.add('active');
+        document.getElementById('signupPanel')?.classList.remove('active');
         document.getElementById('loginSide')?.style.setProperty('display', '');
         document.getElementById('signupSide')?.style.setProperty('display', 'none');
     }
@@ -136,8 +136,8 @@
     function showSignupForm() {
         selectedRole = 'user';
         showPanel(selectedRole);
-        document.getElementById('loginForm')?.classList.remove('active');
-        document.getElementById('signupForm')?.classList.add('active');
+        document.getElementById('loginPanel')?.classList.remove('active');
+        document.getElementById('signupPanel')?.classList.add('active');
         document.getElementById('loginSide')?.style.setProperty('display', 'none');
         document.getElementById('signupSide')?.style.setProperty('display', '');
     }
@@ -205,7 +205,7 @@
 
     if (mechanicSignupButton && mechanicLoginButton) {
         mechanicSignupButton.addEventListener('click', function () {
-            document.getElementById('mechanicLoginForm')?.classList.remove('active');
+            document.getElementById('mechanicPanel')?.classList.remove('active');
             document.getElementById('mechanicSignupForm')?.classList.add('active');
             this.style.display = 'none';
             mechanicLoginButton.style.display = '';
@@ -213,7 +213,7 @@
 
         mechanicLoginButton.addEventListener('click', function () {
             document.getElementById('mechanicSignupForm')?.classList.remove('active');
-            document.getElementById('mechanicLoginForm')?.classList.add('active');
+            document.getElementById('mechanicPanel')?.classList.add('active');
             this.style.display = 'none';
             mechanicSignupButton.style.display = '';
         });
