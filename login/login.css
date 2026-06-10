@@ -926,6 +926,22 @@ body.dark-mode .auth-submit, body.dark-mode .auth-switch-btn {
     background: linear-gradient(90deg, #1abc9c 0%, #20c997 100%);
     transform: scale(1.04);
 }
+.auth-footnote {
+    margin-top: 16px;
+    font-size: 0.95rem;
+    color: #9aa5b1;
+    text-align: center;
+}
+.auth-link-button {
+    border: none;
+    background: none;
+    color: #1abc9c;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: underline;
+    padding: 0;
+    font-family: inherit;
+}
 
 /* Right Panel: Side Info */
 .auth-side-panel {

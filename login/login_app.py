@@ -16,10 +16,15 @@ app = Flask(__name__, static_folder=None)
 
 # Configure session cookie behavior from environment for production (Vercel)
 # Use env vars to control for local vs production environments.
+session_cookie_secure = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() in ('true', '1', 'yes')
+session_cookie_samesite = os.environ.get('SESSION_COOKIE_SAMESITE', 'Lax')
+if not session_cookie_secure and session_cookie_samesite.lower() == 'none':
+    session_cookie_samesite = 'Lax'
+
 app.config.update({
     'SESSION_COOKIE_HTTPONLY': True,
-    'SESSION_COOKIE_SAMESITE': os.environ.get('SESSION_COOKIE_SAMESITE', 'None'),
-    'SESSION_COOKIE_SECURE': os.environ.get('SESSION_COOKIE_SECURE', 'True') == 'True',
+    'SESSION_COOKIE_SAMESITE': session_cookie_samesite,
+    'SESSION_COOKIE_SECURE': session_cookie_secure,
 })
 
 # Optionally set session cookie domain when serving across subdomains
@@ -293,9 +298,12 @@ def api_login():
     else:
         return jsonify({'success': False, 'message': 'Invalid email or password!'}), 401
 
-@app.route('/signup', methods=['POST'])
+@app.route('/signup', methods=['GET', 'POST'])
 def api_signup():
     """Handle signup for users"""
+    if request.method == 'GET':
+        return send_from_directory(basedir, 'login.html')
+
     data = request.json
     username = data.get('username')
     email = data.get('email')

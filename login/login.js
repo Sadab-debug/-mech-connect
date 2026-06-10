@@ -154,6 +154,15 @@
     if (showSignupBtn) showSignupBtn.addEventListener('click', showSignupForm);
     if (showLoginBtn) showLoginBtn.addEventListener('click', showLoginForm);
 
+    const showSignupInlineButton = document.getElementById('showSignupInline');
+    if (showSignupInlineButton) {
+        showSignupInlineButton.addEventListener('click', function () {
+            showSignupForm();
+            selectedRole = 'user';
+            showPanel(selectedRole);
+        });
+    }
+
     if (mechanicSignupButton && mechanicLoginButton) {
         mechanicSignupButton.addEventListener('click', function () {
             document.getElementById('mechanicLoginForm')?.classList.remove('active');
