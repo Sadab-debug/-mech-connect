@@ -19,11 +19,26 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const flaskDir = join(__dirname, "..", "..", "mistrivai", "backend");
 
-const flask = spawn("python3", ["run.py"], {
+// __dirname = <workspace>/artifacts/api-server/dist
+// 3 levels up = <workspace>
+const workspaceRoot = join(__dirname, "..", "..", "..");
+const flaskDir = join(workspaceRoot, "artifacts", "mistrivai", "backend");
+
+// Python is in .pythonlibs inside the workspace
+const pythonExec = join(workspaceRoot, ".pythonlibs", "bin", "python3");
+const sitePackages = join(workspaceRoot, ".pythonlibs", "lib", "python3.11", "site-packages");
+
+logger.info({ pythonExec, flaskDir }, "Starting Flask subprocess");
+
+const flask = spawn(pythonExec, ["run.py"], {
   cwd: flaskDir,
-  env: { ...process.env, FLASK_PORT: "5001" },
+  env: {
+    ...process.env,
+    FLASK_PORT: "5001",
+    PYTHONPATH: [sitePackages, process.env["PYTHONPATH"]].filter(Boolean).join(":"),
+    PATH: `${join(workspaceRoot, ".pythonlibs", "bin")}:${process.env["PATH"] ?? ""}`,
+  },
   stdio: "inherit",
 });
 
