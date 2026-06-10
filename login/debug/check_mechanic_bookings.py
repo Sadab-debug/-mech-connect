@@ -1,5 +1,5 @@
 import sqlite3
-conn = sqlite3.connect('mechconnect_1769168048.db')
+conn = sqlite3.connect('mistrivai_1769168048.db')
 cur = conn.cursor()
 # Fetch mechanic 11 session info
 cur.execute('SELECT id, username, email FROM mechanics WHERE email = ?', ('jarif123@gmail.com',))

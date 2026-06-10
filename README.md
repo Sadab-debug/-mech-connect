@@ -1,4 +1,4 @@
-# Mech Connect - Online Mechanics Platform
+# MistriVai - Online Mechanics Platform
 
 ## 📋 Table of Contents
 - [Overview](#overview)
@@ -18,7 +18,7 @@
 
 ## 🎯 Overview
 
-Mech Connect is a comprehensive online mechanics booking platform that connects users with local mechanics. The platform features:
+MistriVai is a comprehensive online mechanics booking platform that connects users with local mechanics. The platform features:
 
 - **User System**: Regular users can browse mechanics, book services, and communicate with mechanics
 - **Mechanic System**: Mechanics can register, create profiles, set availability, and manage bookings
@@ -113,9 +113,9 @@ online_mechanics/
     ├── current_db.txt                 # Current database filename
     │
     ├── Database Files:
-    ├── mechconnect.db                 # Main SQLite database
-    ├── mechconnect_fresh.db           # Fresh database copy
-    ├── mechconnect_old.db             # Old database backup
+    ├── mistrivai.db                 # Main SQLite database
+    ├── mistrivai_fresh.db           # Fresh database copy
+    ├── mistrivai_old.db             # Old database backup
     ├── mechanics_hiring.db           # Hiring database
     └── [Multiple timestamped .db files]
     │
@@ -154,7 +154,7 @@ The Flask application serves as the central backend, handling:
 
 #### Database Configuration
 ```python
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mechconnect.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mistrivai.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key_change_this'
 ```
@@ -1108,7 +1108,7 @@ Server runs on `http://127.0.0.1:5000`
 
 1. **Reset Database**:
 ```bash
-del mechconnect.db
+del mistrivai.db
 python init_db.py
 ```
 

@@ -1,5 +1,5 @@
 import sqlite3
-conn = sqlite3.connect('mechconnect_1769168048.db')
+conn = sqlite3.connect('mistrivai_1769168048.db')
 cur = conn.cursor()
 cur.execute('SELECT name FROM sqlite_master WHERE type="table";')
 print('Tables:', [r[0] for r in cur.fetchall()])

@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'mechconnect.db')
+DB_PATH = os.path.join(os.path.dirname(__file__), 'mistrivai.db')
 if not os.path.exists(DB_PATH):
     print("Database file does not exist.")
     exit(1)

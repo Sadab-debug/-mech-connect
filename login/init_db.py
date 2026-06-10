@@ -19,7 +19,7 @@ def init_database():
     
     # Database configuration
     basedir = os.path.abspath(os.path.dirname(__file__))
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "mechconnect.db")}'
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "mistrivai.db")}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     db.init_app(app)
@@ -169,7 +169,7 @@ def init_database():
         print("  User: john_doe / password123")
         print("  Admin: admin / admin123")
         print("  Mechanic: jarif_hassan / password123")
-        print("\nDatabase file: mechconnect.db")
+        print("\nDatabase file: mistrivai.db")
 
 if __name__ == '__main__':
     init_database()

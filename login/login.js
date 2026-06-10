@@ -125,6 +125,8 @@
     }
 
     function showLoginForm() {
+        selectedRole = 'user';
+        showPanel(selectedRole);
         document.getElementById('loginForm')?.classList.add('active');
         document.getElementById('signupForm')?.classList.remove('active');
         document.getElementById('loginSide')?.style.setProperty('display', '');
@@ -132,6 +134,8 @@
     }
 
     function showSignupForm() {
+        selectedRole = 'user';
+        showPanel(selectedRole);
         document.getElementById('loginForm')?.classList.remove('active');
         document.getElementById('signupForm')?.classList.add('active');
         document.getElementById('loginSide')?.style.setProperty('display', 'none');
@@ -163,6 +167,24 @@
 
     if (showSignupBtn) showSignupBtn.addEventListener('click', showSignupForm);
     if (showLoginBtn) showLoginBtn.addEventListener('click', showLoginForm);
+
+    document.querySelectorAll('.side-nav-btn[data-target]').forEach(btn => {
+        const target = btn.dataset.target;
+        if (!target) return;
+        btn.addEventListener('click', () => {
+            if (target === 'login') {
+                showLoginForm();
+            } else if (target === 'signup') {
+                showSignupForm();
+            } else if (target === 'mechanic') {
+                selectedRole = 'mechanic';
+                showPanel('mechanic');
+            } else if (target === 'admin') {
+                selectedRole = 'admin';
+                showPanel('admin');
+            }
+        });
+    });
 
     const showSignupInlineButton = document.getElementById('showSignupInline');
     const showLoginFromSignupButton = document.getElementById('showLoginFromSignup');

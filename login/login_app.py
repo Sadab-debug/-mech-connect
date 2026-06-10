@@ -48,7 +48,7 @@ else:
             with open(os.path.join(basedir, 'current_db.txt')) as f:
                 return f.read().strip()
         except:
-            return 'mechconnect.db'
+            return 'mistrivai.db'
 
     db_name = get_current_db()
     db_path = os.path.join(basedir, db_name)
@@ -111,7 +111,7 @@ with app.app_context():
     db.create_all()
 
     # Ensure a known default admin account exists.
-    default_email = os.environ.get('DEFAULT_ADMIN_EMAIL', 'admin@mechconnect.local')
+    default_email = os.environ.get('DEFAULT_ADMIN_EMAIL', 'admin@mistrivai.local')
     default_password = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'Admin@1234')
     default_username = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
     default_full_name = os.environ.get('DEFAULT_ADMIN_FULL_NAME', 'Default Admin')

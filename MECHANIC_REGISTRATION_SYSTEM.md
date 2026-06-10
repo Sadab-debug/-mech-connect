@@ -204,7 +204,7 @@ Approved mechanics can access booking system
 **Environment:**
 - Flask debug mode: ON
 - CORS: Enabled with credentials
-- Database: SQLite (mechconnect.db)
+- Database: SQLite (mistrivai.db)
 - Server: localhost:5000
 
 ## 📝 Sample Admin Credentials

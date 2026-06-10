@@ -160,7 +160,7 @@ After initialization, you can use:
 ```
 
 ## Database File
-The SQLite database is stored as `mechconnect.db` in the same directory as `login_app.py`.
+The SQLite database is stored as `mistrivai.db` in the same directory as `login_app.py`.
 
 ## Security Notes
 - Passwords are hashed using SHA256
@@ -173,7 +173,7 @@ The SQLite database is stored as `mechconnect.db` in the same directory as `logi
 ## Troubleshooting
 
 ### Database Already Exists
-To reset the database, delete `mechconnect.db` and run `init_db.py` again.
+To reset the database, delete `mistrivai.db` and run `init_db.py` again.
 
 ### Port Already in Use
 If port 5000 is busy, modify the port in `login_app.py`:
@@ -197,5 +197,5 @@ online_mechanics/login/
 ├── login.html            # Frontend login page
 ├── login.js              # Frontend login logic
 ├── login.css             # Login page styles
-└── mechconnect.db        # SQLite database (created after init)
+└── mistrivai.db        # SQLite database (created after init)
 ```

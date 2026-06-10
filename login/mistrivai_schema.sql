@@ -1,5 +1,5 @@
 -- Mech Connect SQLite schema
--- Run in sqlite3: .read mechconnect_schema.sql
+-- Run in sqlite3: .read mistrivai_schema.sql
 
 PRAGMA foreign_keys = ON;
 

@@ -67,7 +67,7 @@ def generate_fake_mechanics(count=10):
 def reinit():
     import time
     timestamp = int(time.time())
-    db_path = os.path.join(os.path.dirname(__file__), f'mechconnect_{timestamp}.db')
+    db_path = os.path.join(os.path.dirname(__file__), f'mistrivai_{timestamp}.db')
     if os.path.exists(db_path):
         os.remove(db_path)
         print("Removed existing fresh db.")
