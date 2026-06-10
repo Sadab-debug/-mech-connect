@@ -66,7 +66,9 @@ export default function MechanicDetailScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
 
-  const [description, setDescription] = useState("");
+  const [problemDescription, setProblemDescription] = useState("");
+  const [address, setAddress] = useState("");
+  const [preferredTime, setPreferredTime] = useState("");
   const [offerAmount, setOfferAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState("");
@@ -96,7 +98,15 @@ export default function MechanicDetailScreen() {
       router.push("/(auth)/login");
       return;
     }
-    if (!description.trim()) {
+    if (!address.trim()) {
+      setBookingError("Please enter your address");
+      return;
+    }
+    if (!preferredTime.trim()) {
+      setBookingError("Please enter your preferred date & time");
+      return;
+    }
+    if (!problemDescription.trim()) {
       setBookingError("Please describe the work needed");
       return;
     }
@@ -107,17 +117,31 @@ export default function MechanicDetailScreen() {
     setBookingError("");
     setSubmitting(true);
     try {
+      let isoTime: string;
+      try {
+        isoTime = new Date(preferredTime.trim()).toISOString();
+        if (isoTime === "Invalid Date") throw new Error();
+      } catch {
+        setBookingError("Invalid date/time. Try format: 2026-06-15 14:00");
+        setSubmitting(false);
+        return;
+      }
       const res = await apiPost("/bookings", {
         mechanic_id: parseInt(id as string),
-        description: description.trim(),
-        offer_amount: parseFloat(offerAmount),
+        address: address.trim(),
+        preferred_time: isoTime,
+        problem_description: problemDescription.trim(),
+        offer: parseFloat(offerAmount),
+        payment_method: "online",
       });
       const data = await res.json();
-      if (data.success || data.booking) {
+      if (data.success) {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setProblemDescription("");
+        setAddress("");
+        setPreferredTime("");
+        setOfferAmount("");
         if (Platform.OS === "web") {
-          setDescription("");
-          setOfferAmount("");
           router.push("/(tabs)/bookings");
         } else {
           Alert.alert("Booking Sent!", "Your booking request has been submitted. The mechanic will review it shortly.", [
@@ -436,11 +460,31 @@ export default function MechanicDetailScreen() {
           <Text style={s.bookTitle}>Book This Mechanic</Text>
           <Text style={s.bookSubtitle}>Describe your problem and set your offer</Text>
 
+          <Text style={s.label}>Your Address</Text>
+          <TextInput
+            style={[s.textarea, { minHeight: 44 }]}
+            value={address}
+            onChangeText={setAddress}
+            placeholder="e.g. 12 Dhanmondi Road, Dhaka"
+            placeholderTextColor={colors.mutedForeground}
+            testID="address-input"
+          />
+
+          <Text style={s.label}>Preferred Date & Time</Text>
+          <TextInput
+            style={[s.textarea, { minHeight: 44 }]}
+            value={preferredTime}
+            onChangeText={setPreferredTime}
+            placeholder="e.g. 2026-06-15 14:00"
+            placeholderTextColor={colors.mutedForeground}
+            testID="time-input"
+          />
+
           <Text style={s.label}>What do you need fixed?</Text>
           <TextInput
             style={s.textarea}
-            value={description}
-            onChangeText={setDescription}
+            value={problemDescription}
+            onChangeText={setProblemDescription}
             placeholder="Describe the issue or work needed..."
             placeholderTextColor={colors.mutedForeground}
             multiline
