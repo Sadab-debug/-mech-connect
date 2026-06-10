@@ -145,6 +145,10 @@ class Booking(db.Model):
     counter_note = db.Column(db.Text, nullable=True)
     payment_method = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(50), default='requested')
+    deposit_amount = db.Column(db.Float, default=0.0)
+    platform_fee = db.Column(db.Float, default=0.0)
+    payment_status = db.Column(db.String(50), default='pending')
+    payment_transaction_id = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

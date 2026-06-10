@@ -8,7 +8,7 @@
     "api/index.py": {
       "runtime": "@vercel/python@4.3.0",
       "maxDuration": 30,
-      "excludeFiles": "{node_modules,artifacts/mistrivai/node_modules,artifacts/mistrivai/src,artifacts/mistrivai/dist,artifacts/mistrivai/public,.migration-backup,lib,scripts,artifacts/api-server,artifacts/mockup-sandbox,.git,.pnpm-store}/**"
+      "includeFiles": "artifacts/mistrivai/backend/**"
     }
   },
   "rewrites": [

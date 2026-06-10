@@ -101,8 +101,30 @@ def strip_flask_prefix():
         new_path = request.path[len('/flask'):] or '/'
         request.environ['PATH_INFO'] = new_path
 
+def _get_frontend_base():
+    scheme = 'https' if (request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https') else 'http'
+    return f"{scheme}://{request.host}"
+
 with app.app_context():
     db.create_all()
+    try:
+        from sqlalchemy import inspect as _sa_inspect, text as _sa_text
+        _inspector = _sa_inspect(db.engine)
+        _existing = {c['name'] for c in _inspector.get_columns('bookings')}
+        _new_cols = [
+            ('deposit_amount', 'FLOAT DEFAULT 0'),
+            ('platform_fee', 'FLOAT DEFAULT 0'),
+            ('payment_status', "VARCHAR(50) DEFAULT 'pending'"),
+            ('payment_transaction_id', 'VARCHAR(255)'),
+        ]
+        with db.engine.connect() as _conn:
+            for _col, _def in _new_cols:
+                if _col not in _existing:
+                    _conn.execute(_sa_text(f'ALTER TABLE bookings ADD COLUMN {_col} {_def}'))
+                    _conn.commit()
+                    print(f"[MIGRATE] Added column: {_col}")
+    except Exception as _me:
+        print(f"[MIGRATE WARNING] {_me}")
     default_email = os.environ.get('DEFAULT_ADMIN_EMAIL')
     default_password = os.environ.get('DEFAULT_ADMIN_PASSWORD')
     default_username = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
