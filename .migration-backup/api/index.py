@@ -1,11 +1,26 @@
-import os
 import sys
+import os
 
-# Ensure the root/login directory is in the python path so imports inside login_app work
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'login'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
-from login_app import app
+from app import app
 
-# Vercel needs the application callable to be named 'app'
-# Since we imported 'app', it is already exposed as 'app'
+
+class ApiPrefixMiddleware:
+    """Strip /api prefix so existing Flask routes work unchanged on Vercel."""
+    def __init__(self, wsgi_app, prefix='/api'):
+        self.app = wsgi_app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        if path.startswith(self.prefix + '/'):
+            environ['PATH_INFO'] = path[len(self.prefix):]
+            environ['SCRIPT_NAME'] = environ.get('SCRIPT_NAME', '') + self.prefix
+        elif path == self.prefix:
+            environ['PATH_INFO'] = '/'
+            environ['SCRIPT_NAME'] = environ.get('SCRIPT_NAME', '') + self.prefix
+        return self.app(environ, start_response)
+
+
+app.wsgi_app = ApiPrefixMiddleware(app.wsgi_app)
