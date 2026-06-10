@@ -199,6 +199,9 @@ def api_signup():
 
 @app.route('/admin/signup', methods=['POST'])
 def admin_signup():
+    current = session.get('user')
+    if not current or current.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Admin access required'}), 403
     data = request.json
     username = data.get('username')
     email = data.get('email')
