@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { apiGet, apiPost } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, MessageSquare, User, ArrowLeft } from 'lucide-react';
+import { Send, MessageSquare, ArrowLeft, Search, X } from 'lucide-react';
 
 interface Conversation {
   id: string;
@@ -24,6 +24,13 @@ interface Message {
   is_read: boolean;
 }
 
+interface ChatUser {
+  id: string;
+  username: string;
+  avatar: string | null;
+  role: string;
+}
+
 export default function Chat() {
   const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
@@ -34,6 +41,9 @@ export default function Chat() {
   const [sending, setSending] = useState(false);
   const [loadingConvs, setLoadingConvs] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [showUserPicker, setShowUserPicker] = useState(false);
+  const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
+  const [userSearch, setUserSearch] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const myId = user ? `${user.role}_${user.id}` : '';
@@ -59,6 +69,7 @@ export default function Chat() {
 
   const openConversation = async (conv: Conversation) => {
     setActiveConv(conv);
+    setShowUserPicker(false);
     setLoadingMsgs(true);
     try {
       const res = await apiGet(`/chat/messages/${conv.id}`);
@@ -83,26 +94,42 @@ export default function Chat() {
           id: data.message_id, sender_id: myId, receiver_id: activeConv.id,
           content, image_url: null, created_at: new Date().toISOString(), is_read: false
         }]);
+        setConversations(prev => prev.map(c => c.id === activeConv.id
+          ? { ...c, last_message: content, last_time: new Date().toISOString() }
+          : c
+        ));
       }
     } catch {}
     setSending(false);
   };
 
-  const startNewChat = async () => {
+  const openUserPicker = async () => {
+    setShowUserPicker(true);
+    setUserSearch('');
     try {
       const res = await apiGet('/chat/users');
       const data = await res.json();
-      if (data.success && data.users.length > 0) {
-        const u = data.users[0];
-        const conv: Conversation = { id: u.id, name: u.username, avatar: u.avatar, role: u.role, last_message: '', last_time: '', unread_count: 0 };
-        setConversations(prev => {
-          if (prev.find(c => c.id === conv.id)) return prev;
-          return [conv, ...prev];
-        });
-        openConversation(conv);
-      }
+      if (data.success) setChatUsers(data.users);
     } catch {}
   };
+
+  const startChatWith = (u: ChatUser) => {
+    const existing = conversations.find(c => c.id === u.id);
+    if (existing) {
+      openConversation(existing);
+      return;
+    }
+    const conv: Conversation = {
+      id: u.id, name: u.username, avatar: u.avatar,
+      role: u.role, last_message: '', last_time: '', unread_count: 0
+    };
+    setConversations(prev => [conv, ...prev]);
+    openConversation(conv);
+  };
+
+  const filteredUsers = chatUsers.filter(u =>
+    u.username.toLowerCase().includes(userSearch.toLowerCase())
+  );
 
   if (authLoading) {
     return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-[#7e57c2] border-t-transparent animate-spin"></div></div>;
@@ -110,10 +137,70 @@ export default function Chat() {
 
   return (
     <div className="h-[calc(100vh-64px)] flex" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e7eef7 100%)' }}>
+      {/* Sidebar */}
       <div className={`${activeConv ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 lg:w-96 bg-white/80 backdrop-blur border-r border-black/10`}>
-        <div className="p-4 border-b border-black/10">
+        <div className="p-4 border-b border-black/10 flex items-center justify-between">
           <h2 className="font-black text-gray-900 text-lg">Messages</h2>
+          <button
+            onClick={openUserPicker}
+            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white font-bold text-xs hover:opacity-90">
+            + New Chat
+          </button>
         </div>
+
+        {/* User picker */}
+        {showUserPicker && (
+          <div className="absolute inset-0 z-20 bg-black/40 flex items-start justify-center pt-20 px-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+              <div className="p-4 border-b flex items-center justify-between">
+                <h3 className="font-black text-gray-900">Start a Conversation</h3>
+                <button onClick={() => setShowUserPicker(false)} className="p-1 rounded-lg hover:bg-gray-100">
+                  <X size={18} className="text-gray-500" />
+                </button>
+              </div>
+              <div className="p-3 border-b">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-gray-50">
+                  <Search size={15} className="text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name..."
+                    value={userSearch}
+                    onChange={e => setUserSearch(e.target.value)}
+                    className="flex-1 bg-transparent text-sm focus:outline-none text-gray-700 placeholder-gray-400"
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {filteredUsers.length === 0 ? (
+                  <p className="text-center text-gray-400 py-8 text-sm">
+                    {chatUsers.length === 0 ? 'No users available to chat with' : 'No results found'}
+                  </p>
+                ) : (
+                  filteredUsers.map(u => (
+                    <button
+                      key={u.id}
+                      onClick={() => startChatWith(u)}
+                      className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors text-left border-b border-gray-50">
+                      {u.avatar ? (
+                        <img src={u.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#20c997] to-[#7e57c2] flex items-center justify-center shrink-0">
+                          <span className="text-white font-black text-sm">{u.username[0]?.toUpperCase()}</span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-bold text-gray-900 text-sm">{u.username}</p>
+                        <p className="text-xs text-gray-400 capitalize">{u.role}</p>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto">
           {loadingConvs ? (
             <div className="p-4 space-y-3">
@@ -123,11 +210,9 @@ export default function Chat() {
             <div className="text-center py-16 px-4">
               <MessageSquare size={40} className="mx-auto text-gray-300 mb-3" />
               <p className="text-gray-400 font-semibold">No conversations yet</p>
-              {user?.role === 'user' && (
-                <button onClick={startNewChat} className="mt-4 px-4 py-2 rounded-xl bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white font-bold text-sm">
-                  Start a conversation
-                </button>
-              )}
+              <button onClick={openUserPicker} className="mt-4 px-4 py-2 rounded-xl bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white font-bold text-sm">
+                Start a conversation
+              </button>
             </div>
           ) : (
             conversations.map(conv => (
@@ -137,7 +222,7 @@ export default function Chat() {
                   <img src={conv.avatar} alt="" className="w-11 h-11 rounded-full object-cover shrink-0" />
                 ) : (
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#20c997] to-[#7e57c2] flex items-center justify-center shrink-0">
-                    <span className="text-white font-black">{conv.name[0]}</span>
+                    <span className="text-white font-black">{conv.name[0]?.toUpperCase()}</span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -155,12 +240,16 @@ export default function Chat() {
         </div>
       </div>
 
+      {/* Chat window */}
       <div className={`${!activeConv ? 'hidden md:flex' : 'flex'} flex-col flex-1`}>
         {!activeConv ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <MessageSquare size={48} className="mx-auto text-gray-300 mb-4" />
               <p className="text-gray-400 font-semibold">Select a conversation</p>
+              <button onClick={openUserPicker} className="mt-4 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white font-bold text-sm hover:opacity-90">
+                Start New Chat
+              </button>
             </div>
           </div>
         ) : (
@@ -173,7 +262,7 @@ export default function Chat() {
                 <img src={activeConv.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#20c997] to-[#7e57c2] flex items-center justify-center">
-                  <span className="text-white font-black">{activeConv.name[0]}</span>
+                  <span className="text-white font-black">{activeConv.name[0]?.toUpperCase()}</span>
                 </div>
               )}
               <div>

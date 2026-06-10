@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { apiGet, apiPost } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
-import { Calendar, MapPin, Clock, CheckCircle, XCircle, AlertCircle, Wrench } from 'lucide-react';
+import { Calendar, MapPin, Clock, CheckCircle, XCircle, AlertCircle, Wrench, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 interface Booking {
   id: number;
@@ -32,6 +32,7 @@ export default function MyBookings() {
   const [, navigate] = useLocation();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actioning, setActioning] = useState<number | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -42,8 +43,30 @@ export default function MyBookings() {
   }, [user, authLoading]);
 
   const completeBooking = async (id: number) => {
+    setActioning(id);
     await apiPost(`/bookings/${id}/complete`);
     setBookings(prev => prev.map(b => b.id === id ? {...b, status: 'completed'} : b));
+    setActioning(null);
+  };
+
+  const acceptCounter = async (id: number, counterOffer: number) => {
+    setActioning(id);
+    const res = await apiPost(`/bookings/${id}/counter-accept`);
+    const data = await res.json();
+    if (data.success) {
+      setBookings(prev => prev.map(b => b.id === id ? {...b, status: 'confirmed', offer: counterOffer} : b));
+    }
+    setActioning(null);
+  };
+
+  const rejectCounter = async (id: number) => {
+    setActioning(id);
+    const res = await apiPost(`/bookings/${id}/counter-reject`);
+    const data = await res.json();
+    if (data.success) {
+      setBookings(prev => prev.map(b => b.id === id ? {...b, status: 'rejected', counter_offer: null, counter_note: null} : b));
+    }
+    setActioning(null);
   };
 
   if (authLoading || loading) {
@@ -76,6 +99,7 @@ export default function MyBookings() {
           <div className="space-y-4">
             {bookings.map(b => {
               const st = STATUS_STYLES[b.status] || { label: b.status, cls: 'bg-gray-100 text-gray-600', icon: <AlertCircle size={14} /> };
+              const hasCounter = b.counter_offer && b.status === 'requested';
               return (
                 <div key={b.id} className="bg-white/80 backdrop-blur rounded-2xl border border-black/10 shadow-lg overflow-hidden">
                   <div className="p-6">
@@ -106,8 +130,8 @@ export default function MyBookings() {
 
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500">Offer:</span>
-                        <span className="font-bold text-gray-900">৳{b.offer}</span>
+                        <span className="text-gray-500">Your offer:</span>
+                        <span className={`font-bold ${hasCounter ? 'line-through text-gray-400' : 'text-gray-900'}`}>৳{b.offer}</span>
                       </div>
                       {b.counter_offer && (
                         <div className="flex items-center gap-1">
@@ -124,10 +148,34 @@ export default function MyBookings() {
                       </div>
                     )}
 
+                    {hasCounter && (
+                      <div className="mt-4 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+                        <p className="text-sm font-black text-amber-800 mb-3">
+                          Mechanic sent a counter offer of ৳{b.counter_offer}
+                        </p>
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => acceptCounter(b.id, b.counter_offer!)}
+                            disabled={actioning === b.id}
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#20c997] text-white font-bold text-sm hover:opacity-90 disabled:opacity-60 transition-opacity">
+                            <ThumbsUp size={15} /> Accept ৳{b.counter_offer}
+                          </button>
+                          <button
+                            onClick={() => rejectCounter(b.id)}
+                            disabled={actioning === b.id}
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:opacity-90 disabled:opacity-60 transition-opacity">
+                            <ThumbsDown size={15} /> Decline
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {b.status === 'confirmed' && (
-                      <button onClick={() => completeBooking(b.id)}
-                        className="mt-4 w-full py-2.5 rounded-xl bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white font-bold text-sm hover:opacity-90 transition-opacity">
-                        Mark as Completed
+                      <button
+                        onClick={() => completeBooking(b.id)}
+                        disabled={actioning === b.id}
+                        className="mt-4 w-full py-2.5 rounded-xl bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-60">
+                        {actioning === b.id ? 'Marking...' : 'Mark as Completed'}
                       </button>
                     )}
                   </div>

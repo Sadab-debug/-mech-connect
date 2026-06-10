@@ -1,35 +1,44 @@
 ---
 name: MistriVai project stack
-description: Architecture, deployment setup, and key decisions for the MistriVai mechanics booking app
+description: Tech stack, proxy setup, known bugs and fixes for the MistriVai mechanics booking platform
 ---
 
-## Stack
-- Frontend: Vite + React + Wouter + shadcn/ui at artifact `artifacts/mistrivai` (path `/`)
-- Backend: Flask + SQLAlchemy at `artifacts/mistrivai/backend/`
-- DB: PostgreSQL (DATABASE_URL env var), tables auto-created via `db.create_all()` on startup
-- API Server: Node.js/Express at `artifacts/api-server` (path `/api`)
+# MistriVai Stack
 
-## Production Architecture (critical)
-In production only the API Server artifact runs — the Flask workflow does NOT run separately.
-Fix: `artifacts/api-server/src/index.ts` spawns Flask as a subprocess (`python3 run.py` in `../../mistrivai/backend/`).
-`artifacts/api-server/src/app.ts` proxies all `/api/*` requests (except `/api/healthz`) to `http://127.0.0.1:5001/flask`.
+Flask+SQLAlchemy backend in `artifacts/mistrivai/backend/app.py`.
+Vite+React frontend in `artifacts/mistrivai/src/`.
+Node.js API Server in `artifacts/api-server/` proxies `/api/*` to Flask.
 
-**Why:** Replit deployment only runs registered artifacts, not dev-only workflows. Flask must be started by the API Server subprocess.
+## Dev Setup
+- Flask runs on port 5001 via "MistriVai Flask Backend" workflow
+- Vite proxies `/flask` prefix to Flask port 5001
+- Node.js API Server runs on port assigned by PORT env var
 
-## Dev vs Production API routing
-- `artifacts/mistrivai/src/lib/api.ts`: `FLASK_BASE = DEV ? '/flask' : '/api'`
-- In dev: Vite proxies `/flask` → Flask on port 5001 (via `MistriVai Flask Backend` workflow)
-- In prod: Node.js API Server at `/api` proxies to Flask subprocess on 5001
+## Production Setup
+- API Server spawns Flask subprocess using `/home/runner/workspace/.pythonlibs/bin/python3`
+- workspaceRoot = join(__dirname, '..', '..', '..') from dist/
+- flaskDir = workspaceRoot/artifacts/mistrivai/backend
+- FLASK_PORT = 5001
 
-## Admin Seeding
-Flask `app.py` reads `DEFAULT_ADMIN_EMAIL`, `DEFAULT_ADMIN_PASSWORD`, `DEFAULT_ADMIN_USERNAME`, `DEFAULT_ADMIN_FULL_NAME` env vars on startup and creates admin if not exists.
-Admin: admin@mistrivai.connect / Admin@1234 (set as env vars)
+## Session / Auth
+- Flask sessions use SESSION_SECRET_KEY env var
+- Sessions work because browser always hits Node.js proxy (same-origin), not Flask directly
+- CORS not an issue in production (proxy handles it)
 
-## Flask prefix middleware
-`run.py` wraps Flask with `PrefixMiddleware(prefix='/flask')` — strips `/flask` from paths so Flask routes are plain (e.g. `/signup` not `/flask/signup`).
-Port: `FLASK_PORT` env var, default 5001.
+## Booking Flow
+- User creates booking → status='requested'
+- Mechanic can: accept (→confirmed), reject (→rejected), or send counter_offer
+- When mechanic sends counter: user sees amber banner in MyBookings with Accept/Decline
+  - Accept: POST /bookings/<id>/counter-accept → offer=counter_offer, status=confirmed
+  - Decline: POST /bookings/<id>/counter-reject → status=rejected, clears counter fields
+- User marks confirmed booking as complete: POST /bookings/<id>/complete
 
-## Required secrets
-- `SESSION_SECRET_KEY` — Flask session secret
-- `DATABASE_URL` — PostgreSQL (auto-provisioned by Replit)
-- `DEFAULT_ADMIN_EMAIL`, `DEFAULT_ADMIN_PASSWORD` — admin seeding
+## Chat
+- IDs use prefixed format: "user_1", "mechanic_5"
+- Conversations grouped by peer in /chat/conversations
+- Read marking in get_messages MUST filter by sender_id=conversation_id (not all unread)
+- Chat.tsx has searchable user-picker modal (+New Chat button) not blind users[0]
+
+## Known remaining issues
+- No real-time Pusher listener in frontend (messages require refresh)
+- Migration backup workflows in .migration-backup/ all fail — expected/ignore

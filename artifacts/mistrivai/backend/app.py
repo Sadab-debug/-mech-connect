@@ -614,6 +614,45 @@ def mechanic_counter_booking(booking_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
+@app.route('/bookings/<int:booking_id>/counter-accept', methods=['POST'])
+def user_accept_counter(booking_id):
+    user_data = session.get('user')
+    if not user_data:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    try:
+        booking = db.session.get(Booking, booking_id)
+        if not booking or booking.user_id != user_data['id']:
+            return jsonify({'success': False, 'message': 'Not found'}), 404
+        if not booking.counter_offer:
+            return jsonify({'success': False, 'message': 'No counter offer to accept'}), 400
+        booking.offer = booking.counter_offer
+        booking.status = 'confirmed'
+        db.session.commit()
+        trigger_pusher_event(f"mechanic-{booking.mechanic_id}", 'booking_update', {'id': booking.id, 'status': 'confirmed'})
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/bookings/<int:booking_id>/counter-reject', methods=['POST'])
+def user_reject_counter(booking_id):
+    user_data = session.get('user')
+    if not user_data:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    try:
+        booking = db.session.get(Booking, booking_id)
+        if not booking or booking.user_id != user_data['id']:
+            return jsonify({'success': False, 'message': 'Not found'}), 404
+        booking.status = 'rejected'
+        booking.counter_offer = None
+        booking.counter_note = None
+        db.session.commit()
+        trigger_pusher_event(f"mechanic-{booking.mechanic_id}", 'booking_update', {'id': booking.id, 'status': 'rejected'})
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
 @app.route('/bookings/<int:booking_id>/complete', methods=['POST'])
 def complete_booking(booking_id):
     user_data = session.get('user')
@@ -680,7 +719,7 @@ def get_messages(conversation_id):
             and_(Message.sender_id == my_prefixed, Message.receiver_id == conversation_id),
             and_(Message.sender_id == conversation_id, Message.receiver_id == my_prefixed)
         )).order_by(Message.created_at.asc()).all()
-        Message.query.filter_by(receiver_id=my_prefixed, is_read=False).update({'is_read': True})
+        Message.query.filter(Message.sender_id == conversation_id, Message.receiver_id == my_prefixed, Message.is_read == False).update({'is_read': True})
         db.session.commit()
         result = [{'id': m.id, 'sender_id': m.sender_id, 'receiver_id': m.receiver_id, 'content': m.content, 'image_url': m.image_url, 'created_at': m.created_at.isoformat(), 'is_read': m.is_read} for m in messages]
         return jsonify({'success': True, 'messages': result})
