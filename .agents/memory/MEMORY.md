@@ -1,0 +1,1 @@
+- [MistriVai stack](mistrivai-stack.md) — React+Vite frontend + Flask backend in pnpm monorepo; Flask prefix middleware strips /flask from all routes
