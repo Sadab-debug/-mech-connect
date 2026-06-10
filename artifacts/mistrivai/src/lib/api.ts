@@ -1,4 +1,4 @@
-const FLASK_BASE = import.meta.env.VITE_FLASK_API_URL || '/flask';
+const FLASK_BASE = import.meta.env.VITE_FLASK_API_URL ?? (import.meta.env.DEV ? '/flask' : '/api');
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const url = `${FLASK_BASE}${path}`;

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { Eye, EyeOff, UserPlus, Wrench, CheckCircle } from 'lucide-react';
+import { apiPost } from '@/lib/api';
 
 export default function Signup() {
   const { refresh } = useAuth();
@@ -16,13 +17,7 @@ export default function Signup() {
     setError('');
     setLoading(true);
     try {
-      const FLASK_BASE = import.meta.env.VITE_FLASK_API_URL || '/flask';
-      const res = await fetch(`${FLASK_BASE}/signup`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
+      const res = await apiPost('/signup', form);
       const data = await res.json();
       if (data.success) {
         await refresh();
