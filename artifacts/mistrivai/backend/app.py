@@ -521,16 +521,23 @@ def bookings():
     if request.method == 'POST':
         data = request.get_json()
         try:
+            offer = float(data['offer'])
+            deposit = round(offer * 0.30, 2)
+            platform_fee = round(offer * 0.05, 2)
             booking = Booking(
                 user_id=user_data['id'], mechanic_id=data['mechanic_id'],
                 address=data['address'], preferred_time=datetime.fromisoformat(data['preferred_time']),
-                problem_description=data['problem_description'], offer=data['offer'],
-                payment_method=data['payment_method'], status='requested'
+                problem_description=data['problem_description'], offer=offer,
+                deposit_amount=deposit, platform_fee=platform_fee,
+                payment_method=data.get('payment_method', 'online'), status='requested',
+                payment_status='pending'
             )
             db.session.add(booking)
             db.session.commit()
             trigger_pusher_event(f"mechanic-{booking.mechanic_id}", 'booking_update', {'id': booking.id, 'status': booking.status})
-            return jsonify({'success': True, 'booking_id': booking.id})
+            return jsonify({'success': True, 'booking_id': booking.id,
+                            'deposit_amount': deposit, 'platform_fee': platform_fee,
+                            'total_online': round(deposit + platform_fee, 2)})
         except Exception as e:
             db.session.rollback()
             return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
