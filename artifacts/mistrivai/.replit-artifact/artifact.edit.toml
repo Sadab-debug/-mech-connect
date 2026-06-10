@@ -1,0 +1,46 @@
+kind = "web"
+previewPath = "/"
+title = "MistriVai"
+version = "1.0.0"
+id = "artifacts/mistrivai"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25062
+
+[services.development]
+run = "pnpm --filter @workspace/mistrivai run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/mistrivai", "run", "build" ]
+publicDir = "artifacts/mistrivai/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25062"
+BASE_PATH = "/"
+
+[[services]]
+name = "flask"
+paths = [ "/flask" ]
+localPort = 5001
+stripPrefix = true
+
+[services.development]
+run = "python3 backend/run.py"
+
+[services.production]
+run = "python3 artifacts/mistrivai/backend/run.py"
+
+[services.env]
+FLASK_PORT = "5001"

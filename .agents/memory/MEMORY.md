@@ -1,0 +1,1 @@
+- [MistriVai project stack](mistrivai-stack.md) — Flask+SQLite backend at /flask, Vite+React frontend at /, mobile in migration backup only
