@@ -16,7 +16,7 @@ Both `artifacts/mistrivai/vite.config.ts` and `artifacts/mockup-sandbox/vite.con
 **Why:** `pnpm run build` runs vite build without PORT set, causing the build to fail if the config throws.
 
 ## DB
-SQLite at `artifacts/mistrivai/backend/mistrivai.db`. Default admin: admin@mistrivai.local / Admin@1234.
+SQLite at `artifacts/mistrivai/backend/mistrivai.db` (dev). Default admin seeded only when DEFAULT_ADMIN_EMAIL/PASSWORD env vars are set in production. See env-secrets skill before deploying.
 
 ## Frontend API calls
 All API calls use `/flask` prefix (configured in `src/lib/api.ts`). Vite dev proxy forwards `/flask` → `localhost:5001` with prefix stripped.

@@ -45,7 +45,13 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = os.environ.get('SESSION_SECRET_KEY', 'mistrivai_secret_key_2024')
+
+_secret_key = os.environ.get('SESSION_SECRET_KEY')
+if not _secret_key:
+    import secrets as _secrets
+    _secret_key = _secrets.token_hex(32)
+    print('[WARNING] SESSION_SECRET_KEY not set — using a random key. Sessions will not survive restarts. Set SESSION_SECRET_KEY in environment for production.')
+app.secret_key = _secret_key
 
 db.init_app(app)
 
@@ -85,24 +91,28 @@ def trigger_pusher_event(channel, event, data):
 
 with app.app_context():
     db.create_all()
-    default_email = os.environ.get('DEFAULT_ADMIN_EMAIL', 'admin@mistrivai.local')
-    default_password = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'Admin@1234')
+    default_email = os.environ.get('DEFAULT_ADMIN_EMAIL')
+    default_password = os.environ.get('DEFAULT_ADMIN_PASSWORD')
     default_username = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
-    default_full_name = os.environ.get('DEFAULT_ADMIN_FULL_NAME', 'Default Admin')
-    default_admin = Admin.query.filter_by(email=default_email).first()
-    if not default_admin:
-        if Admin.query.filter_by(username=default_username).first():
-            default_username = f"{default_username}_1"
-        new_admin = Admin(
-            username=default_username,
-            email=default_email,
-            password=Admin.hash_password(default_password),
-            full_name=default_full_name,
-            role='admin'
-        )
-        db.session.add(new_admin)
-        db.session.commit()
-        print(f"[INIT] Created default admin: {default_email}")
+    default_full_name = os.environ.get('DEFAULT_ADMIN_FULL_NAME', 'Admin')
+    if default_email and default_password:
+        existing = Admin.query.filter_by(email=default_email).first()
+        if not existing:
+            uname = default_username
+            if Admin.query.filter_by(username=uname).first():
+                uname = f"{uname}_1"
+            new_admin = Admin(
+                username=uname,
+                email=default_email,
+                password=Admin.hash_password(default_password),
+                full_name=default_full_name,
+                role='admin'
+            )
+            db.session.add(new_admin)
+            db.session.commit()
+            print(f"[INIT] Created admin from env: {default_email}")
+    elif not Admin.query.first():
+        print("[INIT] No admin exists. Set DEFAULT_ADMIN_EMAIL and DEFAULT_ADMIN_PASSWORD env vars to seed one.")
 
 @app.route('/profile', methods=['GET'])
 def get_profile():
