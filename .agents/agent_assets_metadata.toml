@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "jRLwgWAtPvPCy-65rJoGC"
+uri = "file://artifacts/mistrivai-mobile/assets/images/icon.png"
+type = "image"
+title = "mistrivai mobile app icon"
