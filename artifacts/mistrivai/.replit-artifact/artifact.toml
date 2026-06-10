@@ -39,5 +39,8 @@ stripPrefix = true
 [services.development]
 run = "python3 backend/run.py"
 
+[services.production]
+run = "python3 artifacts/mistrivai/backend/run.py"
+
 [services.env]
 FLASK_PORT = "5001"
