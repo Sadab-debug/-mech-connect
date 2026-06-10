@@ -158,8 +158,8 @@ class Message(db.Model):
     __tablename__ = 'messages'
     
     id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, nullable=False)  # Can be user or mechanic
-    receiver_id = db.Column(db.Integer, nullable=False)
+    sender_id = db.Column(db.String(50), nullable=False)    # e.g. "user_1", "mechanic_3"
+    receiver_id = db.Column(db.String(50), nullable=False)  # e.g. "user_1", "mechanic_3"
     content = db.Column(db.Text, nullable=True)
     image_url = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

@@ -47,3 +47,10 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Runtime databases — never commit DB files (may contain PII/user data)
+*.db
+*.sqlite
+*.sqlite3
+backend/debug/
+.migration-backup/
