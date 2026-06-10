@@ -69,16 +69,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(payload)
             });
             
-            const data = await response.json();
+            let data = null;
             document.getElementById('spinner').style.display = 'none';
-            
-            if (data.success) {
+
+            const contentType = (response.headers.get('content-type') || '').toLowerCase();
+            if (contentType.includes('application/json')) {
+                try {
+                    data = await response.json();
+                } catch (err) {
+                    document.getElementById('formError').textContent = 'Invalid JSON response from server.';
+                    return;
+                }
+            } else {
+                // Server returned plain text or HTML (e.g. error page). Show it to the user.
+                const text = await response.text();
+                // If the text is JSON-like, try to parse it; otherwise display raw text.
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    document.getElementById('formError').textContent = text || 'Server error. Please try again later.';
+                    return;
+                }
+            }
+
+            if (data && data.success) {
                 document.getElementById('formSuccess').textContent = '✅ Proposal submitted! Redirecting to your dashboard...';
                 setTimeout(() => {
                     window.location.href = '/mechanic_dashboard.html';
                 }, 1500);
             } else {
-                document.getElementById('formError').textContent = data.message || 'Error submitting proposal';
+                document.getElementById('formError').textContent = (data && data.message) || 'Error submitting proposal';
             }
         } catch (error) {
             document.getElementById('spinner').style.display = 'none';
