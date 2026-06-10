@@ -1,0 +1,13 @@
+node_modules
+artifacts/mistrivai/node_modules
+artifacts/mistrivai/src
+artifacts/mistrivai/public
+artifacts/api-server
+artifacts/mockup-sandbox
+.migration-backup
+lib
+scripts
+.git
+*.log
+pnpm-lock.yaml
+uv.lock
