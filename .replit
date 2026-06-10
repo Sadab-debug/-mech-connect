@@ -26,3 +26,10 @@ externalPort = 3001
 [[ports]]
 localPort = 25062
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+DEFAULT_ADMIN_EMAIL = "admin@mistrivai.local"
+DEFAULT_ADMIN_USERNAME = "admin"
+DEFAULT_ADMIN_FULL_NAME = "MistriVai Admin"
