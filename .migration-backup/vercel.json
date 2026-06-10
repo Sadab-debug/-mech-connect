@@ -1,13 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter @workspace/mistrivai run build",
-  "outputDirectory": "artifacts/mistrivai/dist",
-  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/mistrivai run build",
+  "outputDirectory": "artifacts/mistrivai/dist/public",
+  "installCommand": "pnpm install --no-frozen-lockfile",
   "framework": null,
   "functions": {
     "api/index.py": {
-      "runtime": "python3.12",
-      "maxDuration": 30
+      "runtime": "@vercel/python@4.3.0",
+      "maxDuration": 30,
+      "includeFiles": "artifacts/mistrivai/backend/**"
     }
   },
   "rewrites": [
