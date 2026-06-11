@@ -11,7 +11,7 @@ Node.js API Server in `artifacts/api-server/` proxies `/api/*` to Flask.
 
 ## Dev Setup
 - Flask runs on port 5001 via "MistriVai Flask Backend" workflow
-- Vite proxies `/flask` prefix to Flask port 5001
+- Vite MUST have a `/flask` proxy in vite.config.ts → `http://localhost:5001` with rewrite stripping `/flask`; without it all browser API calls fail silently (login/signup/etc broken)
 - Node.js API Server runs on port assigned by PORT env var
 
 ## Production Setup
