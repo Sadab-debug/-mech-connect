@@ -3,7 +3,7 @@ modules = ["nodejs-24", "python-3.11", "postgresql-16"]
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
-run = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 build = ["bash", "-c", "pnpm install && pnpm --filter @workspace/mistrivai run build && pnpm --filter @workspace/api-server run build"]
 
 [deployment.postBuild]
@@ -35,7 +35,7 @@ args = "bash scripts/start-all.sh"
 waitForPort = 25062
 
 [agent]
-stack = "BEST_EFFORT_FALLBACK"
+stack = "FLASK_VANILLA_JS"
 expertMode = true
 
 [postMerge]
@@ -69,3 +69,4 @@ SESSION_SECRET_KEY = "ed3eebb26ca085209e3d052d907b8d992fa6e260dea88fd34ef8897146
 
 [nix]
 channel = "stable-25_05"
+packages = ["openssl", "postgresql"]

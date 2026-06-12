@@ -17,7 +17,8 @@ except ImportError:
 
 from models import db, User, Admin, Mechanic, MechanicProposal, MechanicNotification, Booking, Message, Review, Complaint, EmergencyRequest
 
-app = Flask(__name__, static_folder=None)
+_frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'dist', 'public')
+app = Flask(__name__, static_folder=_frontend_dist, static_url_path='')
 
 session_cookie_secure = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() in ('true', '1', 'yes')
 session_cookie_samesite = os.environ.get('SESSION_COOKIE_SAMESITE', 'Lax')
@@ -1077,6 +1078,20 @@ def admin_resolve_complaint(complaint_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
+import os as _os2
+_frontend_dist_index = _os2.path.join(_os2.path.dirname(__file__), '..', 'dist', 'public', 'index.html')
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_spa(path):
+    from flask import send_from_directory
+    full_path = _os2.path.join(_os2.path.dirname(__file__), '..', 'dist', 'public', path)
+    if path and _os2.path.exists(full_path) and _os2.path.isfile(full_path):
+        return send_from_directory(_os2.path.join(_os2.path.dirname(__file__), '..', 'dist', 'public'), path)
+    if _os2.path.exists(_frontend_dist_index):
+        return send_from_directory(_os2.path.join(_os2.path.dirname(__file__), '..', 'dist', 'public'), 'index.html')
+    return jsonify({'status': 'MistriVai API is running'}), 200
+
 if __name__ == '__main__':
-    port = int(os.environ.get('FLASK_PORT', 5001))
+    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
