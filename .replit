@@ -33,7 +33,7 @@ args = "bash scripts/start-all.sh"
 waitForPort = 25062
 
 [agent]
-stack = "PNPM_WORKSPACE"
+stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
 
 [postMerge]
