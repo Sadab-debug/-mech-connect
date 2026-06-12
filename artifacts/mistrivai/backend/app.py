@@ -46,7 +46,7 @@ if database_url:
         'pool_pre_ping': True,
     }
 else:
-    db_path = os.path.join(basedir, 'mistrivai.db')
+    db_path = os.path.join(basedir, 'easymistri.db')
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

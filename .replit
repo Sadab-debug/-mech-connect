@@ -59,6 +59,10 @@ externalPort = 80
 [userenv]
 
 [userenv.shared]
+DEFAULT_ADMIN_EMAIL = "admin@easymistri.login"
+DEFAULT_ADMIN_PASSWORD = "Admin@1234"
+DEFAULT_ADMIN_USERNAME = "admin"
+DEFAULT_ADMIN_FULL_NAME = "Admin"
 
 [nix]
 channel = "stable-25_05"

@@ -49,7 +49,7 @@ export default function Login() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#20c997] to-[#7e57c2] flex items-center justify-center shadow-md">
               <Wrench size={18} className="text-white" />
             </div>
-            <span className="font-black text-2xl text-gray-900">MistriVai</span>
+            <span className="font-black text-2xl text-gray-900">EasyMistri</span>
           </Link>
           <h1 className="text-2xl font-black text-gray-900 mt-2">Welcome Back</h1>
           <p className="text-gray-500 text-sm mt-1">Sign in to your account</p>

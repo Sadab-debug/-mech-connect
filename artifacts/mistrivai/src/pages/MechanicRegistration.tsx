@@ -47,7 +47,7 @@ export default function MechanicRegistration() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-3">
             <span className="w-3 h-3 rounded-full bg-gradient-to-r from-[#20c997] to-[#7e57c2]"></span>
-            <span className="font-black text-2xl text-gray-900">MistriVai</span>
+            <span className="font-black text-2xl text-gray-900">EasyMistri</span>
           </div>
           <h1 className="text-3xl font-black text-gray-900 mb-2">Join as a Mechanic</h1>
           <p className="text-gray-500">Submit your application to become a verified mechanic</p>

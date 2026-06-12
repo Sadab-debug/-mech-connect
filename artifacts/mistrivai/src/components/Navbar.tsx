@@ -128,7 +128,7 @@ export default function Navbar() {
                 <Wrench size={18} className="text-white" />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-gray-900 font-black text-lg tracking-tight">MistriVai</span>
+                <span className="text-gray-900 font-black text-lg tracking-tight">EasyMistri</span>
                 <span className="text-[10px] text-[#20c997] font-semibold tracking-wider uppercase">Bangladesh</span>
               </div>
             </Link>

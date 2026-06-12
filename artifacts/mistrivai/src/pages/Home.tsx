@@ -146,7 +146,7 @@ export default function Home() {
       {/* Why choose us */}
       <section className="py-10 px-4 sm:px-6 max-w-7xl mx-auto">
         <div className="text-center mb-8">
-          <h2 className="text-xl sm:text-2xl font-black text-gray-900">Why MistriVai?</h2>
+          <h2 className="text-xl sm:text-2xl font-black text-gray-900">Why EasyMistri?</h2>
           <p className="text-gray-400 text-sm mt-1">Trusted by thousands across Bangladesh</p>
         </div>
         <div className="grid sm:grid-cols-3 gap-4">
@@ -172,7 +172,7 @@ export default function Home() {
           <div>
             <div className="text-white/60 text-sm font-semibold mb-1">For Mechanics & Workshops</div>
             <h2 className="text-2xl sm:text-3xl font-black text-white mb-2">Grow Your Business</h2>
-            <p className="text-white/70 text-sm sm:text-base">Join 500+ mechanics earning more with MistriVai. Free registration, instant bookings.</p>
+            <p className="text-white/70 text-sm sm:text-base">Join 500+ mechanics earning more with EasyMistri. Free registration, instant bookings.</p>
           </div>
           <Link href="/mechanic-registration"
             className="shrink-0 inline-flex items-center gap-2 px-7 py-4 rounded-2xl bg-white text-[#7e57c2] font-black text-base hover:bg-white/90 transition-colors no-underline shadow-lg whitespace-nowrap">
@@ -190,7 +190,7 @@ export default function Home() {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#20c997] to-[#7e57c2] flex items-center justify-center">
                   <Wrench size={14} className="text-white" />
                 </div>
-                <span className="font-black text-gray-900">MistriVai</span>
+                <span className="font-black text-gray-900">EasyMistri</span>
               </div>
               <p className="text-xs text-gray-400 leading-relaxed">Bangladesh's trusted platform connecting vehicle owners with verified mechanics.</p>
             </div>
@@ -217,7 +217,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p className="text-xs text-gray-400">© 2025 MistriVai. All rights reserved.</p>
+            <p className="text-xs text-gray-400">© 2025 EasyMistri. All rights reserved.</p>
             <p className="text-xs text-gray-400">Made with ❤️ in Bangladesh</p>
           </div>
         </div>

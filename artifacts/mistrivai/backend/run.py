@@ -24,5 +24,5 @@ app.wsgi_app = PrefixMiddleware(app.wsgi_app)
 
 if __name__ == '__main__':
     port = int(os.environ.get('FLASK_PORT', 5001))
-    print(f"[MistriVai] Starting Flask backend on port {port}")
+    print(f"[EasyMistri] Starting Flask backend on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)

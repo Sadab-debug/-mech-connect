@@ -77,7 +77,7 @@ export default function AdminDashboard() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-black text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-500 mt-1">Manage MistriVai platform</p>
+          <p className="text-gray-500 mt-1">Manage EasyMistri platform</p>
         </div>
 
         {stats && (
