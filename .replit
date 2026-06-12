@@ -3,6 +3,8 @@ modules = ["nodejs-24", "python-3.11", "postgresql-16"]
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
+run = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+build = ["bash", "-c", "pnpm install && pnpm --filter @workspace/mistrivai run build && pnpm --filter @workspace/api-server run build"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
@@ -63,6 +65,7 @@ DEFAULT_ADMIN_EMAIL = "admin@easymistri.login"
 DEFAULT_ADMIN_PASSWORD = "Admin@1234"
 DEFAULT_ADMIN_USERNAME = "admin"
 DEFAULT_ADMIN_FULL_NAME = "Admin"
+SESSION_SECRET_KEY = "ed3eebb26ca085209e3d052d907b8d992fa6e260dea88fd34ef88971462255b5"
 
 [nix]
 channel = "stable-25_05"
