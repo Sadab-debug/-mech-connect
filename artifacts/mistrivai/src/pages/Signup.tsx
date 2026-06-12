@@ -35,7 +35,7 @@ export default function Signup() {
   const perks = ['Free to join', 'Instant booking', 'Verified mechanics', 'Safe & secure'];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12 pb-20 md:pb-12">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
 
         {/* Logo */}

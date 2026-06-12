@@ -61,7 +61,7 @@ export default function Mechanics() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
+    <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-1">Find Mechanics</h1>

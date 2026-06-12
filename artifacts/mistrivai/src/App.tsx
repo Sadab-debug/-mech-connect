@@ -2,7 +2,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
@@ -21,10 +21,11 @@ import NotFound from "@/pages/not-found";
 const queryClient = new QueryClient();
 
 function Layout({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className={`flex-1 ${user ? 'pb-16 md:pb-0' : ''}`}>{children}</main>
     </div>
   );
 }
