@@ -23,7 +23,7 @@ const stats = [
 ];
 
 const steps = [
-  { num: '01', title: 'Search & Filter', desc: 'Find mechanics by location, expertise, and ratings.' },
+  { num: '01', title: 'Search & Filter', desc: 'Find mechanics by location, expertise, and trust score.' },
   { num: '02', title: 'Book Instantly', desc: 'Choose a time slot and confirm your booking online.' },
   { num: '03', title: 'Get Serviced', desc: 'Mechanic arrives at your location and fixes your vehicle.' },
 ];
@@ -57,6 +57,12 @@ export default function Home() {
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white font-bold text-base shadow-lg shadow-[#7e57c2]/30 hover:opacity-90 transition-opacity no-underline">
                   Find Mechanics <ArrowRight size={18} />
                 </Link>
+                {user?.role === 'user' && (
+                  <Link href="/emergency"
+                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-base shadow-lg shadow-red-500/30 hover:opacity-90 transition-opacity no-underline">
+                    <Zap size={18} /> Need Help Now
+                  </Link>
+                )}
                 {!user && (
                   <Link href="/signup"
                     className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-base hover:border-[#7e57c2] hover:text-[#7e57c2] transition-colors no-underline">
@@ -69,8 +75,8 @@ export default function Home() {
               <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-100">
                 {[
                   { icon: <CheckCircle size={16} className="text-[#20c997]" />, text: 'Verified Mechanics' },
-                  { icon: <Shield size={16} className="text-[#7e57c2]" />, text: 'Secure Booking' },
-                  { icon: <Clock size={16} className="text-blue-500" />, text: 'Same-Day Service' },
+                  { icon: <Shield size={16} className="text-[#7e57c2]" />, text: '30-Day Service Guarantee' },
+                  { icon: <Clock size={16} className="text-blue-500" />, text: 'Emergency Same-Day Service' },
                 ].map(b => (
                   <div key={b.text} className="flex items-center gap-1.5 text-sm text-gray-600 font-medium">
                     {b.icon} {b.text}
@@ -94,6 +100,27 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Emergency Banner */}
+      {user?.role === 'user' && (
+        <section className="bg-gradient-to-r from-red-50 to-orange-50 border-y border-red-100 py-5 px-4">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+                <Zap size={20} className="text-red-500" />
+              </div>
+              <div>
+                <p className="font-black text-gray-900 text-sm">Stranded on the road?</p>
+                <p className="text-gray-500 text-xs">Use Emergency Mode — nearby mechanics get alerted instantly, first available accepts.</p>
+              </div>
+            </div>
+            <Link href="/emergency"
+              className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-sm hover:opacity-90 transition-opacity no-underline whitespace-nowrap shadow-md shadow-red-500/20">
+              <Zap size={16} /> Need Help Now
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Service Categories */}
       <section className="py-10 px-4 sm:px-6 max-w-7xl mx-auto">
@@ -151,9 +178,9 @@ export default function Home() {
         </div>
         <div className="grid sm:grid-cols-3 gap-4">
           {[
-            { icon: <Award size={28} />, title: 'Verified Experts', desc: 'Every mechanic is background-checked, trained, and reviewed before joining the platform.', color: 'text-[#7e57c2]', bg: 'from-[#7e57c2]/10 to-[#7e57c2]/5' },
+            { icon: <Award size={28} />, title: 'Trust Score System', desc: 'Every mechanic has a real Trust Score built from verified reviews and complaint history — fake ratings are impossible.', color: 'text-[#7e57c2]', bg: 'from-[#7e57c2]/10 to-[#7e57c2]/5' },
             { icon: <TrendingUp size={28} />, title: 'Best Prices', desc: 'Transparent pricing with no hidden charges. Compare rates and choose what suits your budget.', color: 'text-[#20c997]', bg: 'from-[#20c997]/10 to-[#20c997]/5' },
-            { icon: <Shield size={28} />, title: 'Service Guarantee', desc: "All work is backed by our quality guarantee. Not satisfied? We'll make it right.", color: 'text-blue-600', bg: 'from-blue-500/10 to-blue-500/5' },
+            { icon: <Shield size={28} />, title: '30-Day Guarantee', desc: 'All platform bookings carry a 30-day service warranty. Dispute resolution and complaints handled by EasyMistri.', color: 'text-blue-600', bg: 'from-blue-500/10 to-blue-500/5' },
           ].map(c => (
             <div key={c.title} className="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.color} mb-4`}>

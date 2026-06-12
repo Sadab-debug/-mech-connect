@@ -15,7 +15,7 @@ try:
 except ImportError:
     pusher_lib = None
 
-from models import db, User, Admin, Mechanic, MechanicProposal, MechanicNotification, Booking, Message
+from models import db, User, Admin, Mechanic, MechanicProposal, MechanicNotification, Booking, Message, Review, Complaint, EmergencyRequest
 
 app = Flask(__name__, static_folder=None)
 
@@ -123,6 +123,28 @@ with app.app_context():
                     _conn.execute(_sa_text(f'ALTER TABLE bookings ADD COLUMN {_col} {_def}'))
                     _conn.commit()
                     print(f"[MIGRATE] Added column: {_col}")
+        # Add columns to mechanics table
+        _mechanic_new_cols = [
+            ('trust_score', 'FLOAT DEFAULT 3.0'),
+            ('complaint_count', 'INTEGER DEFAULT 0'),
+            ('review_count', 'INTEGER DEFAULT 0'),
+        ]
+        _existing_m = {c['name'] for c in _inspector.get_columns('mechanics')}
+        with db.engine.connect() as _conn2:
+            for _col, _def in _mechanic_new_cols:
+                if _col not in _existing_m:
+                    _conn2.execute(_sa_text(f'ALTER TABLE mechanics ADD COLUMN {_col} {_def}'))
+                    _conn2.commit()
+                    print(f"[MIGRATE] Added column to mechanics: {_col}")
+        # Add reason column to mechanic_notifications if it doesn't have it
+        _notif_new_cols = [('reason', 'TEXT')]
+        _existing_n = {c['name'] for c in _inspector.get_columns('mechanic_notifications')}
+        with db.engine.connect() as _conn3:
+            for _col, _def in _notif_new_cols:
+                if _col not in _existing_n:
+                    _conn3.execute(_sa_text(f'ALTER TABLE mechanic_notifications ADD COLUMN {_col} {_def}'))
+                    _conn3.commit()
+                    print(f"[MIGRATE] Added column to mechanic_notifications: {_col}")
     except Exception as _me:
         print(f"[MIGRATE WARNING] {_me}")
     default_email = os.environ.get('DEFAULT_ADMIN_EMAIL')
@@ -310,13 +332,19 @@ def update_profile():
 @app.route('/mechanics', methods=['GET'])
 def get_mechanics():
     try:
-        mechanics = Mechanic.query.filter_by(is_active=True, is_approved=True).all()
+        mechanics = Mechanic.query.filter_by(is_active=True, is_approved=True).order_by(
+            Mechanic.trust_score.desc(), Mechanic.total_bookings.desc()
+        ).all()
         mechanics_data = [{
             'id': m.id, 'name': m.full_name, 'workshop': m.workshop_name,
             'expertise': m.expertise, 'experience': m.experience_years,
             'hourly_rate': m.hourly_rate, 'working_hours': m.working_hours,
             'address': m.address, 'mobile': m.mobile, 'profile_pic': m.profile_pic,
-            'rating': m.rating, 'is_active': m.is_active
+            'rating': m.rating or 0.0,
+            'review_count': m.review_count or 0,
+            'trust_score': m.trust_score if m.trust_score is not None else 3.0,
+            'total_bookings': m.total_bookings or 0,
+            'is_active': m.is_active
         } for m in mechanics]
         return jsonify({'success': True, 'mechanics': mechanics_data})
     except Exception as e:
@@ -544,7 +572,17 @@ def bookings():
     else:
         try:
             bk = Booking.query.filter_by(user_id=user_data['id']).order_by(Booking.created_at.desc()).all()
-            result = [{'id': b.id, 'mechanic_id': b.mechanic_id, 'mechanic_name': b.mechanic.full_name, 'mechanic_profile_pic': b.mechanic.profile_pic, 'address': b.address, 'preferred_time': b.preferred_time.isoformat(), 'problem_description': b.problem_description, 'offer': b.offer, 'payment_method': b.payment_method, 'status': b.status, 'counter_offer': b.counter_offer, 'counter_note': b.counter_note, 'created_at': b.created_at.isoformat()} for b in bk]
+            result = [{
+                'id': b.id, 'mechanic_id': b.mechanic_id,
+                'mechanic_name': b.mechanic.full_name, 'mechanic_profile_pic': b.mechanic.profile_pic,
+                'address': b.address, 'preferred_time': b.preferred_time.isoformat(),
+                'problem_description': b.problem_description, 'offer': b.offer,
+                'payment_method': b.payment_method, 'status': b.status,
+                'counter_offer': b.counter_offer, 'counter_note': b.counter_note,
+                'created_at': b.created_at.isoformat(),
+                'has_review': b.review is not None,
+                'has_complaint': b.complaint is not None,
+            } for b in bk]
             return jsonify({'success': True, 'bookings': result})
         except Exception as e:
             return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
@@ -797,6 +835,246 @@ def get_all_bookings():
         result = [{'id': b.id, 'user_name': b.user.username, 'mechanic_name': b.mechanic.full_name, 'status': b.status, 'offer': b.offer, 'address': b.address, 'created_at': b.created_at.isoformat()} for b in bk]
         return jsonify({'success': True, 'bookings': result})
     except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/mechanic/profile', methods=['GET'])
+def mechanic_profile():
+    user_data = session.get('user')
+    if not user_data or user_data.get('role') != 'mechanic':
+        return jsonify({'success': False, 'message': 'Not authorized'}), 401
+    try:
+        m = db.session.get(Mechanic, user_data['id'])
+        if not m:
+            return jsonify({'success': False, 'message': 'Not found'}), 404
+        return jsonify({'success': True, 'mechanic': {
+            'id': m.id, 'rating': m.rating or 0.0, 'review_count': m.review_count or 0,
+            'complaint_count': m.complaint_count or 0,
+            'trust_score': m.trust_score if m.trust_score is not None else 3.0,
+            'total_bookings': m.total_bookings or 0
+        }})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+def _recalculate_trust_score(mechanic):
+    reviews = Review.query.filter_by(mechanic_id=mechanic.id).all()
+    if reviews:
+        avg = sum(r.rating for r in reviews) / len(reviews)
+        mechanic.review_count = len(reviews)
+        mechanic.rating = round(avg, 2)
+    else:
+        avg = 3.0
+        mechanic.review_count = 0
+    penalty = (mechanic.complaint_count or 0) * 0.3
+    mechanic.trust_score = round(max(0.0, min(5.0, avg - penalty)), 2)
+
+@app.route('/bookings/<int:booking_id>/review', methods=['GET', 'POST'])
+def booking_review(booking_id):
+    user_data = session.get('user')
+    if not user_data:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    booking = db.session.get(Booking, booking_id)
+    if not booking or booking.user_id != user_data['id']:
+        return jsonify({'success': False, 'message': 'Not found'}), 404
+    if request.method == 'GET':
+        existing = Review.query.filter_by(booking_id=booking_id).first()
+        return jsonify({'success': True, 'has_review': existing is not None,
+                        'review': {'rating': existing.rating, 'comment': existing.comment} if existing else None})
+    if booking.status != 'completed':
+        return jsonify({'success': False, 'message': 'Can only review completed bookings'}), 400
+    if Review.query.filter_by(booking_id=booking_id).first():
+        return jsonify({'success': False, 'message': 'Already reviewed this booking'}), 400
+    data = request.get_json()
+    try:
+        rating = int(data.get('rating', 0))
+    except (ValueError, TypeError):
+        rating = 0
+    if not 1 <= rating <= 5:
+        return jsonify({'success': False, 'message': 'Rating must be between 1 and 5'}), 400
+    try:
+        review = Review(
+            booking_id=booking_id, user_id=user_data['id'],
+            mechanic_id=booking.mechanic_id, rating=rating,
+            comment=(data.get('comment') or '').strip()
+        )
+        db.session.add(review)
+        _recalculate_trust_score(booking.mechanic)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/mechanics/<int:mechanic_id>/reviews', methods=['GET'])
+def mechanic_reviews(mechanic_id):
+    try:
+        reviews = Review.query.filter_by(mechanic_id=mechanic_id).order_by(Review.created_at.desc()).all()
+        result = [{'id': r.id, 'rating': r.rating, 'comment': r.comment,
+                   'user_name': r.user.full_name or r.user.username,
+                   'created_at': r.created_at.isoformat()} for r in reviews]
+        return jsonify({'success': True, 'reviews': result})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/bookings/<int:booking_id>/complaint', methods=['GET', 'POST'])
+def booking_complaint(booking_id):
+    user_data = session.get('user')
+    if not user_data:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    booking = db.session.get(Booking, booking_id)
+    if not booking or booking.user_id != user_data['id']:
+        return jsonify({'success': False, 'message': 'Not found'}), 404
+    if request.method == 'GET':
+        existing = Complaint.query.filter_by(booking_id=booking_id).first()
+        return jsonify({'success': True, 'has_complaint': existing is not None})
+    if booking.status != 'completed':
+        return jsonify({'success': False, 'message': 'Can only complain about completed bookings'}), 400
+    if Complaint.query.filter_by(booking_id=booking_id).first():
+        return jsonify({'success': False, 'message': 'Already filed a complaint for this booking'}), 400
+    data = request.get_json()
+    description = (data.get('description') or '').strip()
+    if not description:
+        return jsonify({'success': False, 'message': 'Description is required'}), 400
+    try:
+        complaint = Complaint(
+            booking_id=booking_id, user_id=user_data['id'],
+            mechanic_id=booking.mechanic_id, description=description
+        )
+        db.session.add(complaint)
+        mechanic = booking.mechanic
+        mechanic.complaint_count = (mechanic.complaint_count or 0) + 1
+        _recalculate_trust_score(mechanic)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/emergency', methods=['GET', 'POST'])
+def emergency():
+    user_data = session.get('user')
+    if not user_data:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    if request.method == 'GET':
+        try:
+            if user_data.get('role') == 'mechanic':
+                reqs = EmergencyRequest.query.filter_by(status='open').order_by(EmergencyRequest.created_at.desc()).all()
+            else:
+                reqs = EmergencyRequest.query.filter_by(user_id=user_data['id']).order_by(EmergencyRequest.created_at.desc()).all()
+            result = [{'id': r.id, 'description': r.description, 'location': r.location,
+                       'contact_number': r.contact_number, 'budget': r.budget, 'status': r.status,
+                       'accepted_by': r.accepted_by, 'created_at': r.created_at.isoformat(),
+                       'user_name': r.user.full_name or r.user.username} for r in reqs]
+            return jsonify({'success': True, 'requests': result})
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+    # POST — user creates emergency request
+    if user_data.get('role') != 'user':
+        return jsonify({'success': False, 'message': 'Only users can create emergency requests'}), 403
+    data = request.get_json()
+    description = (data.get('description') or '').strip()
+    location = (data.get('location') or '').strip()
+    if not description or not location:
+        return jsonify({'success': False, 'message': 'Description and location are required'}), 400
+    try:
+        budget = float(data['budget']) if data.get('budget') else None
+        req = EmergencyRequest(
+            user_id=user_data['id'], description=description, location=location,
+            contact_number=(data.get('contact_number') or '').strip(),
+            budget=budget
+        )
+        db.session.add(req)
+        db.session.commit()
+        trigger_pusher_event('emergency-alerts', 'new_emergency',
+                             {'id': req.id, 'location': location, 'description': description})
+        return jsonify({'success': True, 'id': req.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/emergency/<int:req_id>/accept', methods=['POST'])
+def emergency_accept(req_id):
+    user_data = session.get('user')
+    if not user_data or user_data.get('role') != 'mechanic':
+        return jsonify({'success': False, 'message': 'Only mechanics can accept emergencies'}), 403
+    try:
+        req = db.session.get(EmergencyRequest, req_id)
+        if not req or req.status != 'open':
+            return jsonify({'success': False, 'message': 'Request not available'}), 404
+        req.status = 'accepted'
+        req.accepted_by = user_data['id']
+        budget = req.budget or 500.0
+        premium_offer = round(budget * 1.20)
+        booking = Booking(
+            user_id=req.user_id, mechanic_id=user_data['id'],
+            address=req.location, preferred_time=datetime.utcnow(),
+            problem_description=f"[EMERGENCY] {req.description}",
+            offer=premium_offer, payment_method='cash', status='confirmed',
+            deposit_amount=0.0, platform_fee=round(premium_offer * 0.05, 2),
+            payment_status='pending'
+        )
+        db.session.add(booking)
+        db.session.flush()
+        req.booking_id = booking.id
+        db.session.commit()
+        trigger_pusher_event(f"user-{req.user_id}", 'emergency_accepted',
+                             {'mechanic_id': user_data['id'], 'booking_id': booking.id})
+        return jsonify({'success': True, 'booking_id': booking.id, 'premium_offer': premium_offer})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/emergency/<int:req_id>/cancel', methods=['POST'])
+def emergency_cancel(req_id):
+    user_data = session.get('user')
+    if not user_data:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    try:
+        req = db.session.get(EmergencyRequest, req_id)
+        if not req or req.user_id != user_data['id']:
+            return jsonify({'success': False, 'message': 'Not found'}), 404
+        if req.status != 'open':
+            return jsonify({'success': False, 'message': 'Cannot cancel at this stage'}), 400
+        req.status = 'cancelled'
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/admin/complaints', methods=['GET'])
+def admin_complaints():
+    user_data = session.get('user')
+    if not user_data or user_data.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Not authorized'}), 401
+    try:
+        complaints = Complaint.query.order_by(Complaint.created_at.desc()).all()
+        result = [{'id': c.id, 'booking_id': c.booking_id,
+                   'user_name': c.user.full_name or c.user.username,
+                   'mechanic_name': c.mechanic.full_name,
+                   'description': c.description, 'status': c.status,
+                   'created_at': c.created_at.isoformat()} for c in complaints]
+        return jsonify({'success': True, 'complaints': result})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/admin/complaints/<int:complaint_id>/resolve', methods=['POST'])
+def admin_resolve_complaint(complaint_id):
+    user_data = session.get('user')
+    if not user_data or user_data.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Not authorized'}), 401
+    data = request.get_json() or {}
+    try:
+        complaint = db.session.get(Complaint, complaint_id)
+        if not complaint:
+            return jsonify({'success': False, 'message': 'Not found'}), 404
+        action = data.get('action', 'resolved')
+        if action not in ('resolved', 'dismissed'):
+            action = 'resolved'
+        complaint.status = action
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
 if __name__ == '__main__':

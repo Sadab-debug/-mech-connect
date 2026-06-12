@@ -80,6 +80,9 @@ class Mechanic(db.Model):
     is_active = db.Column(db.Boolean, default=False)
     is_approved = db.Column(db.Boolean, default=False)
     rating = db.Column(db.Float, default=0.0)
+    review_count = db.Column(db.Integer, default=0)
+    complaint_count = db.Column(db.Integer, default=0)
+    trust_score = db.Column(db.Float, default=3.0)
     total_bookings = db.Column(db.Integer, default=0)
     total_income = db.Column(db.Float, default=0.0)
     monthly_income = db.Column(db.Float, default=0.0)
@@ -122,6 +125,7 @@ class MechanicNotification(db.Model):
     proposal_id = db.Column(db.Integer, db.ForeignKey('mechanic_proposals.id'), nullable=False)
     notification_type = db.Column(db.String(50), nullable=False)
     message = db.Column(db.Text, nullable=False)
+    reason = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_read = db.Column(db.Boolean, default=False)
 
@@ -157,6 +161,62 @@ class Booking(db.Model):
 
     def __repr__(self):
         return f'<Booking {self.id} - {self.status}>'
+
+class Review(db.Model):
+    __tablename__ = 'reviews'
+
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    mechanic_id = db.Column(db.Integer, db.ForeignKey('mechanics.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    booking = db.relationship('Booking', backref=db.backref('review', uselist=False))
+    user = db.relationship('User', backref='reviews')
+    mechanic = db.relationship('Mechanic', backref='reviews_received')
+
+    def __repr__(self):
+        return f'<Review booking={self.booking_id} rating={self.rating}>'
+
+class Complaint(db.Model):
+    __tablename__ = 'complaints'
+
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    mechanic_id = db.Column(db.Integer, db.ForeignKey('mechanics.id'), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(50), default='open')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    booking = db.relationship('Booking', backref=db.backref('complaint', uselist=False))
+    user = db.relationship('User', backref='complaints_filed')
+    mechanic = db.relationship('Mechanic', backref='complaints_received')
+
+    def __repr__(self):
+        return f'<Complaint booking={self.booking_id} status={self.status}>'
+
+class EmergencyRequest(db.Model):
+    __tablename__ = 'emergency_requests'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    location = db.Column(db.String(255), nullable=False)
+    contact_number = db.Column(db.String(20), nullable=True)
+    budget = db.Column(db.Float, nullable=True)
+    status = db.Column(db.String(50), default='open')
+    accepted_by = db.Column(db.Integer, db.ForeignKey('mechanics.id'), nullable=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='emergency_requests')
+    mechanic = db.relationship('Mechanic', backref='accepted_emergencies', foreign_keys=[accepted_by])
+
+    def __repr__(self):
+        return f'<EmergencyRequest {self.id} - {self.status}>'
 
 class Message(db.Model):
     __tablename__ = 'messages'

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { apiGet } from '@/lib/api';
-import { Star, MapPin, Clock, Wrench, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Star, MapPin, Clock, Wrench, Search, X, Shield, TrendingUp, AlertTriangle } from 'lucide-react';
 
 interface Mechanic {
   id: number;
@@ -14,6 +14,32 @@ interface Mechanic {
   address: string;
   profile_pic: string | null;
   rating: number;
+  review_count: number;
+  trust_score: number;
+  total_bookings: number;
+}
+
+function TrustBadge({ score }: { score: number }) {
+  if (score >= 4.5) return (
+    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 border border-green-200 text-green-700 text-xs font-bold">
+      <Shield size={10} className="fill-green-500" /> Highly Trusted
+    </div>
+  );
+  if (score >= 3.5) return (
+    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold">
+      <Shield size={10} /> Trusted
+    </div>
+  );
+  if (score >= 2.5) return (
+    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 border border-yellow-200 text-yellow-700 text-xs font-bold">
+      <TrendingUp size={10} /> Average
+    </div>
+  );
+  return (
+    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 border border-red-200 text-red-600 text-xs font-bold">
+      <AlertTriangle size={10} /> Low Trust
+    </div>
+  );
 }
 
 export default function Mechanics() {
@@ -36,14 +62,10 @@ export default function Mechanics() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
-
-      {/* Header */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-1">Find Mechanics</h1>
-          <p className="text-gray-400 text-sm">Browse {mechanics.length} verified mechanics near you</p>
-
-          {/* Search bar */}
+          <p className="text-gray-400 text-sm">Browse {mechanics.length} verified mechanics · sorted by Trust Score</p>
           <div className="relative mt-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
@@ -54,8 +76,7 @@ export default function Mechanics() {
               className="w-full pl-11 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7e57c2]/30 focus:border-[#7e57c2] focus:bg-white transition-colors text-sm"
             />
             {search && (
-              <button onClick={() => setSearch('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button onClick={() => setSearch('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                 <X size={16} />
               </button>
             )}
@@ -64,7 +85,6 @@ export default function Mechanics() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Results count */}
         {!loading && search && (
           <p className="text-sm text-gray-500 mb-4">
             {filtered.length} result{filtered.length !== 1 ? 's' : ''} for "<span className="font-semibold text-gray-700">{search}</span>"
@@ -93,7 +113,7 @@ export default function Mechanics() {
             <p className="text-gray-400 text-sm mt-1">{search ? 'Try a different search term' : 'No approved mechanics yet. Check back soon!'}</p>
             {search && (
               <button onClick={() => setSearch('')}
-                className="mt-4 px-5 py-2 rounded-xl bg-[#7e57c2]/10 text-[#7e57c2] font-semibold text-sm hover:bg-[#7e57c2]/20 transition-colors">
+                className="mt-4 px-5 py-2 rounded-xl bg-[#7e57c2]/10 text-[#7e57c2] font-semibold text-sm hover:bg-[#7e57c2]/20">
                 Clear search
               </button>
             )}
@@ -102,7 +122,6 @@ export default function Mechanics() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map(m => (
               <div key={m.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all overflow-hidden group">
-                {/* Card header */}
                 <div className="h-24 bg-gradient-to-br from-[#20c997]/15 to-[#7e57c2]/15 relative flex items-end justify-between px-4 pb-2">
                   {m.profile_pic ? (
                     <img src={m.profile_pic} alt={m.name}
@@ -112,17 +131,26 @@ export default function Mechanics() {
                       <span className="text-white font-black text-xl">{(m.name || 'M')[0]}</span>
                     </div>
                   )}
-                  {m.rating > 0 && (
-                    <div className="ml-auto flex items-center gap-1 bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg shadow-sm">
-                      <Star size={13} className="text-yellow-400 fill-yellow-400" />
-                      <span className="text-sm font-black text-gray-700">{m.rating.toFixed(1)}</span>
-                    </div>
-                  )}
+                  <div className="ml-auto flex items-center gap-1.5">
+                    {m.rating > 0 && (
+                      <div className="flex items-center gap-1 bg-white/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm">
+                        <Star size={12} className="text-yellow-400 fill-yellow-400" />
+                        <span className="text-xs font-black text-gray-700">{m.rating.toFixed(1)}</span>
+                        {m.review_count > 0 && <span className="text-[10px] text-gray-400">({m.review_count})</span>}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="px-4 pt-10 pb-4">
-                  <h3 className="font-black text-gray-900 text-base">{m.name}</h3>
-                  <p className="text-[#7e57c2] font-semibold text-xs mb-2.5">{m.workshop}</p>
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h3 className="font-black text-gray-900 text-base">{m.name}</h3>
+                  </div>
+                  <p className="text-[#7e57c2] font-semibold text-xs mb-2">{m.workshop}</p>
+
+                  <div className="mb-2.5">
+                    <TrustBadge score={m.trust_score ?? 3} />
+                  </div>
 
                   {m.expertise && (
                     <div className="flex flex-wrap gap-1 mb-3">
@@ -136,22 +164,17 @@ export default function Mechanics() {
 
                   <div className="space-y-1.5 text-xs text-gray-500 mb-4">
                     {m.address && (
-                      <div className="flex items-center gap-1.5">
-                        <MapPin size={12} className="text-gray-400 shrink-0" />
-                        <span className="truncate">{m.address}</span>
-                      </div>
+                      <div className="flex items-center gap-1.5"><MapPin size={12} className="text-gray-400 shrink-0" /><span className="truncate">{m.address}</span></div>
                     )}
                     {m.working_hours && (
-                      <div className="flex items-center gap-1.5">
-                        <Clock size={12} className="text-gray-400 shrink-0" />
-                        <span>{m.working_hours}</span>
-                      </div>
+                      <div className="flex items-center gap-1.5"><Clock size={12} className="text-gray-400 shrink-0" /><span>{m.working_hours}</span></div>
                     )}
                     {m.hourly_rate > 0 && (
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-400 font-bold">৳</span>
                         <span className="font-bold text-gray-700">{m.hourly_rate}/hr</span>
                         {m.experience > 0 && <span className="text-gray-400 ml-1">· {m.experience}yr exp</span>}
+                        {m.total_bookings > 0 && <span className="text-gray-400 ml-1">· {m.total_bookings} jobs</span>}
                       </div>
                     )}
                   </div>

@@ -15,6 +15,7 @@ import MechanicRegistration from "@/pages/MechanicRegistration";
 import MechanicStatus from "@/pages/MechanicStatus";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Chat from "@/pages/Chat";
+import EmergencyPage from "@/pages/Emergency";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/admin/users" component={() => <Layout><AdminDashboard /></Layout>} />
       <Route path="/admin/bookings" component={() => <Layout><AdminDashboard /></Layout>} />
       <Route path="/chat" component={() => <Layout><Chat /></Layout>} />
+      <Route path="/emergency" component={() => <Layout><EmergencyPage /></Layout>} />
       <Route component={NotFound} />
     </Switch>
   );

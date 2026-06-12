@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useLocation, Link } from 'wouter';
+import { useLocation } from 'wouter';
 import { apiGet, apiPost } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
-import { Users, Wrench, Calendar, CheckCircle, XCircle, ChevronDown, ChevronUp, Eye } from 'lucide-react';
+import { Users, Wrench, Calendar, CheckCircle, XCircle, Eye, ChevronUp, Flag, AlertTriangle } from 'lucide-react';
 
 interface Pending {
   proposal_id: number;
@@ -16,6 +16,18 @@ interface Pending {
   skills: string | null;
 }
 
+interface Complaint {
+  id: number;
+  booking_id: number;
+  user_name: string;
+  mechanic_name: string;
+  description: string;
+  status: string;
+  created_at: string;
+}
+
+type Tab = 'pending' | 'users' | 'bookings' | 'complaints';
+
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
@@ -23,10 +35,12 @@ export default function AdminDashboard() {
   const [pending, setPending] = useState<Pending[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
-  const [tab, setTab] = useState<'pending' | 'users' | 'bookings'>('pending');
+  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [tab, setTab] = useState<Tab>('pending');
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [mechanicDetails, setMechanicDetails] = useState<Record<number, any>>({});
+  const [resolvingId, setResolvingId] = useState<number | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -37,18 +51,20 @@ export default function AdminDashboard() {
       apiGet('/admin/pending-mechanics').then(r => r.json()),
       apiGet('/api/users').then(r => r.json()),
       apiGet('/admin/all-bookings').then(r => r.json()),
-    ]).then(([s, p, u, b]) => {
+      apiGet('/admin/complaints').then(r => r.json()),
+    ]).then(([s, p, u, b, c]) => {
       if (s.success) setStats(s);
       if (p.success) setPending(p.pending);
       if (u.success) setUsers(u.users);
       if (b.success) setBookings(b.bookings);
+      if (c.success) setComplaints(c.complaints);
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user, authLoading]);
 
   const approveMechanic = async (mechanic_id: number) => {
     await apiPost(`/admin/mechanic/${mechanic_id}/approve`);
     setPending(prev => prev.filter(p => p.mechanic_id !== mechanic_id));
-    if (stats) setStats((s: any) => ({...s, total_mechanics: s.total_mechanics + 1}));
+    if (stats) setStats((s: any) => ({ ...s, total_mechanics: s.total_mechanics + 1 }));
   };
 
   const rejectMechanic = async (mechanic_id: number) => {
@@ -60,7 +76,7 @@ export default function AdminDashboard() {
     if (mechanicDetails[mechanic_id]) return;
     const res = await apiGet(`/admin/mechanic/${mechanic_id}`);
     const data = await res.json();
-    if (data.success) setMechanicDetails(prev => ({...prev, [mechanic_id]: data.mechanic}));
+    if (data.success) setMechanicDetails(prev => ({ ...prev, [mechanic_id]: data.mechanic }));
   };
 
   const toggleExpand = (mid: number) => {
@@ -68,9 +84,25 @@ export default function AdminDashboard() {
     loadMechanicDetails(mid);
   };
 
+  const resolveComplaint = async (id: number, action: 'resolved' | 'dismissed') => {
+    setResolvingId(id);
+    await apiPost(`/admin/complaints/${id}/resolve`, { action });
+    setComplaints(prev => prev.map(c => c.id === id ? { ...c, status: action } : c));
+    setResolvingId(null);
+  };
+
   if (authLoading || loading) {
     return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-[#7e57c2] border-t-transparent animate-spin"></div></div>;
   }
+
+  const openComplaints = complaints.filter(c => c.status === 'open');
+
+  const tabs: { key: Tab; label: string; count: number }[] = [
+    { key: 'pending', label: 'Pending', count: pending.length },
+    { key: 'users', label: 'Users', count: users.length },
+    { key: 'bookings', label: 'Bookings', count: bookings.length },
+    { key: 'complaints', label: 'Complaints', count: openComplaints.length },
+  ];
 
   return (
     <div className="min-h-screen py-10 px-4" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e7eef7 100%)' }}>
@@ -81,11 +113,12 @@ export default function AdminDashboard() {
         </div>
 
         {stats && (
-          <div className="grid sm:grid-cols-3 gap-4 mb-8">
+          <div className="grid sm:grid-cols-4 gap-4 mb-8">
             {[
               { icon: <Users size={20} className="text-blue-500" />, label: 'Total Users', value: stats.total_users, cls: 'bg-blue-50 border-blue-200' },
               { icon: <Wrench size={20} className="text-[#20c997]" />, label: 'Mechanics', value: stats.total_mechanics, cls: 'bg-teal-50 border-teal-200' },
               { icon: <Calendar size={20} className="text-[#7e57c2]" />, label: 'Bookings', value: stats.total_bookings, cls: 'bg-purple-50 border-purple-200' },
+              { icon: <Flag size={20} className="text-red-500" />, label: 'Open Complaints', value: openComplaints.length, cls: 'bg-red-50 border-red-200' },
             ].map(s => (
               <div key={s.label} className={`p-5 rounded-2xl border ${s.cls} flex items-center gap-4`}>
                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">{s.icon}</div>
@@ -98,11 +131,13 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <div className="flex rounded-xl border border-black/10 p-1 bg-gray-50/80 mb-6 w-fit">
-          {(['pending', 'users', 'bookings'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`px-5 py-2 rounded-lg text-sm font-bold capitalize transition-all ${tab === t ? 'bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white shadow-md' : 'text-gray-600 hover:bg-white/70'}`}>
-              {t === 'pending' ? `Pending (${pending.length})` : t === 'users' ? `Users (${users.length})` : `Bookings (${bookings.length})`}
+        <div className="flex rounded-xl border border-black/10 p-1 bg-gray-50/80 mb-6 w-fit flex-wrap gap-1">
+          {tabs.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all flex items-center gap-1.5 ${tab === t.key ? 'bg-gradient-to-r from-[#20c997] to-[#7e57c2] text-white shadow-md' : 'text-gray-600 hover:bg-white/70'}`}>
+              {t.key === 'complaints' && <Flag size={13} />}
+              {t.label}
+              <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === t.key ? 'bg-white/30' : 'bg-gray-200'}`}>{t.count}</span>
             </button>
           ))}
         </div>
@@ -134,8 +169,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => toggleExpand(p.mechanic_id)}
-                        className="p-2 rounded-lg text-gray-500 hover:bg-gray-100">
+                      <button onClick={() => toggleExpand(p.mechanic_id)} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100">
                         {expanded === p.mechanic_id ? <ChevronUp size={18} /> : <Eye size={18} />}
                       </button>
                       <button onClick={() => approveMechanic(p.mechanic_id)}
@@ -148,7 +182,6 @@ export default function AdminDashboard() {
                       </button>
                     </div>
                   </div>
-
                   {expanded === p.mechanic_id && mechanicDetails[p.mechanic_id] && (
                     <div className="mt-4 pt-4 border-t border-black/10 grid sm:grid-cols-2 gap-3 text-sm text-gray-600">
                       {Object.entries(mechanicDetails[p.mechanic_id]).filter(([k, v]) => v && !['id', 'profile_pic', 'is_approved', 'is_active'].includes(k)).map(([k, v]) => (
@@ -214,6 +247,59 @@ export default function AdminDashboard() {
               </table>
               {bookings.length === 0 && <p className="text-center py-10 text-gray-400">No bookings yet</p>}
             </div>
+          </div>
+        )}
+
+        {tab === 'complaints' && (
+          <div className="space-y-4">
+            {complaints.length === 0 && (
+              <div className="text-center py-16 bg-white/80 rounded-3xl border border-black/10">
+                <CheckCircle size={40} className="mx-auto text-green-400 mb-3" />
+                <p className="font-bold text-gray-500">No complaints filed yet</p>
+              </div>
+            )}
+            {complaints.map(c => (
+              <div key={c.id} className={`bg-white/80 backdrop-blur rounded-2xl border shadow-lg p-5 ${c.status === 'open' ? 'border-red-200' : 'border-black/10'}`}>
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${c.status === 'open' ? 'bg-red-100' : c.status === 'resolved' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                      {c.status === 'open' ? <AlertTriangle size={16} className="text-red-500" /> : c.status === 'resolved' ? <CheckCircle size={16} className="text-green-500" /> : <XCircle size={16} className="text-gray-400" />}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="font-black text-gray-900 text-sm">{c.user_name}</span>
+                        <span className="text-gray-400 text-xs">→</span>
+                        <span className="font-semibold text-gray-700 text-sm">{c.mechanic_name}</span>
+                        <span className="text-xs text-gray-400">Booking #{c.booking_id}</span>
+                      </div>
+                      <p className="text-sm text-gray-600">{c.description}</p>
+                      <p className="text-xs text-gray-400 mt-1">{new Date(c.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold capitalize ${c.status === 'open' ? 'bg-red-100 text-red-700' : c.status === 'resolved' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      {c.status}
+                    </span>
+                    {c.status === 'open' && (
+                      <>
+                        <button
+                          onClick={() => resolveComplaint(c.id, 'resolved')}
+                          disabled={resolvingId === c.id}
+                          className="px-3 py-1.5 rounded-lg bg-green-500 text-white font-bold text-xs hover:opacity-90 disabled:opacity-60">
+                          Resolve
+                        </button>
+                        <button
+                          onClick={() => resolveComplaint(c.id, 'dismissed')}
+                          disabled={resolvingId === c.id}
+                          className="px-3 py-1.5 rounded-lg bg-gray-400 text-white font-bold text-xs hover:opacity-90 disabled:opacity-60">
+                          Dismiss
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
